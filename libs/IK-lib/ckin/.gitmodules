@@ -1,0 +1,3 @@
+[submodule "c_lpoe"]
+	path = c_lpoe
+	url = ../c_lpoe.git

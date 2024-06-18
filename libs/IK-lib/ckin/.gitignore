@@ -1,0 +1,23 @@
+*~
+\#*
+
+*.o
+*.so
+*.pyc
+
+test_dh
+test_common
+test_lpoe_invkin
+test_inv
+test_time
+test_tf_util
+test_lin_alg
+gen/lpoe_IRB140.c
+
+html/
+latex/
+
+# Python build dirs
+build
+dist
+*.egg-info

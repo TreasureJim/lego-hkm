@@ -1,0 +1,18 @@
+*~
+\#*
+*.o
+*.so
+*.a
+*.pyc
+
+test_lpoe
+test_matrix_math
+
+# Ignore macOS debug symbols
+*.dSYM
+
+html/
+latex/
+build
+dist
+*.egg-info

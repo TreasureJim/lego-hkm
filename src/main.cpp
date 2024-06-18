@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 
   path_finding_setup();
 
-  double start_pos[3] = {0.0};
+  double start_pos[3] = {0.0, 0.0, 5.0};
 
   ompl::geometric::PathGeometric *path = find_path(start_pos, goal_pos);
   if (!path) {

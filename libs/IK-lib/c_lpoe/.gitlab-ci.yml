@@ -1,0 +1,92 @@
+image: ideon.cognibotics.net/basic_c:latest
+
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+build:
+  stage: build
+  script:
+    - make
+  artifacts:
+    paths:
+      - lpoe.h
+      - liblpoe.so
+
+test:
+  stage: test
+  script:
+    - make test
+
+build_wheel:legacy_linux:
+  image: "quay.io/pypa/manylinux1_x86_64:latest"
+  stage: package
+  script:
+    - for PYBIN in /opt/python/*/bin; do
+          "${PYBIN}/pip" wheel --no-deps . -w dist;
+      done
+  artifacts:
+    paths:
+      - dist/
+
+build_wheel:linux:
+  image: "quay.io/pypa/manylinux2014_x86_64:latest"
+  stage: package
+  script:
+    - for PYBIN in /opt/python/*/bin; do
+          "${PYBIN}/pip" wheel --no-deps . -w dist;
+      done
+  artifacts:
+    paths:
+      - dist/
+
+#build_wheel:macos:
+#  stage: package
+#  tags:
+#    - macos
+#  script:
+#    # Need to rebuild on macOS
+#    - make clean && make
+#
+#    # Make sure the wheel package is installed
+#    - python2 -m pip install -U wheel pip
+#    - python3.5 -m pip install -U wheel pip
+#    - python3.6 -m pip install -U wheel pip
+#    - python3.7 -m pip install -U wheel pip
+#    - python3.8 -m pip install -U wheel pip
+#
+#    - python2 -m pip wheel --no-deps . -w dist
+#    - python3.5 -m pip wheel --no-deps . -w dist
+#    - python3.6 -m pip wheel --no-deps . -w dist
+#    - python3.7 -m pip wheel --no-deps . -w dist
+#    - python3.8 -m pip wheel --no-deps . -w dist
+#  artifacts:
+#    paths:
+#      - dist/
+
+upload_wheel:
+  image: python:latest
+  stage: deploy
+  only:
+    - tags
+  script:
+    - pip install twine
+    - export TWINE_REPOSITORY_URL="https://pypi.cognibotics.net/"
+    - export TWINE_USERNAME="pip"
+    - export TWINE_PASSWORD="$PYPI_PASSWORD"
+    - twine upload dist/*
+
+doc:
+  stage: deploy
+  script:
+    - make doc
+    - make -C latex/
+    - cp latex/refman.pdf latex/c_lpoe.pdf
+      # Trigger new pipeline in doc repo
+    - 'curl -X POST -F token="$DOC_TRIGGER_TOKEN" -F ref=master https://gitlab.cognibotics.net/api/v4/projects/61/trigger/pipeline'
+  artifacts:
+    paths:
+      - html/
+      - latex/c_lpoe.pdf

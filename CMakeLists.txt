@@ -20,6 +20,6 @@ set(SOURCE_FILES
 
 add_executable(LegoHKM ${SOURCE_FILES})
 target_include_directories(LegoHKM PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(LegoHKM PRIVATE ompl IKObjectFiles IK-lib)
+target_link_libraries(LegoHKM PRIVATE ompl IK-lib)
 
 # add_compile_options(-Wall -Wconversion -g -fstack-usage -DEXTRA_CALC -O0 -lm)
