@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.29)
 
-project(OMPLTesting VERSION 0.1)
+project(LegoHKM VERSION 0.1)
 
-message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(ompl REQUIRED)
 if (ompl_FOUND)
@@ -11,6 +11,15 @@ else ()
     message(FATAL_ERROR "OMPL not found")
 endif ()
 
-add_executable(ompltest src/main.cpp)
-target_include_directories(ompltest PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(ompltest PRIVATE ompl)
+add_subdirectory(libs/IK-lib)
+
+set(SOURCE_FILES
+    src/main.cpp
+    src/path_finding.cpp
+)
+
+add_executable(LegoHKM ${SOURCE_FILES})
+target_include_directories(LegoHKM PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(LegoHKM PRIVATE ompl IKObjectFiles IK-lib)
+
+# add_compile_options(-Wall -Wconversion -g -fstack-usage -DEXTRA_CALC -O0 -lm)

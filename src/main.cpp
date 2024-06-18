@@ -1,66 +1,52 @@
 #include <cstdio>
+#include <cstdlib>
+#include <ompl-1.6/ompl/geometric/PathGeometric.h>
+#include <string>
 
-#include <fstream>
-#include <memory>
-#include <ompl/base/goals/GoalLazySamples.h>
-#include <ompl/base/spaces/SE3StateSpace.h>
-#include <ompl/geometric/GeneticSearch.h>
-#include <ompl/geometric/SimpleSetup.h>
+#define RAD_TO_DEG 57.295779513
 
-#include "robot_config.h"
+#include "kinematics.h"
+#include "mark2_0.h"
+#include "path_finding.h"
 
-namespace ob = ompl::base;
-namespace og = ompl::geometric;
+void print_usage() {
+  printf("===== USAGE =====\n"
+         "./LegoHKM x y z\n\n"
+         "x, y, z are doubles which represent the goal co-ordinates for the "
+         "TCP.\n");
 
-bool check_state(const ob::State *state) {
-  const ob::SE3StateSpace::StateType *se3state =
-      state->as<ob::SE3StateSpace::StateType>();
-
-  const ob::RealVectorStateSpace::StateType *pos =
-      se3state->as<ob::RealVectorStateSpace::StateType>(0);
-
-  if (se3state->getZ() < ROBOT_INVALID_RADIUS) {
-    fprintf(stderr, "State: invalid confine.\n");
-    return false;
-  }
-
-  return true;
+  exit(-1);
 }
 
-int main() {
-  auto space = std::make_shared<ob::SE3StateSpace>();
-
-  ob::RealVectorBounds bounds(3);
-  bounds.setLow(0);
-  bounds.setHigh(100);
-
-  space->setBounds(bounds);
-
-  og::SimpleSetup ss(space);
-  ss.setStateValidityChecker(&check_state);
-
-  ob::ScopedState<ob::SE3StateSpace> start(space);
-  start->setXYZ(1.0, 1.0, 10.0);
-  start->rotation().setIdentity();
-
-  ob::ScopedState<ob::SE3StateSpace> goal(space);
-  goal->setXYZ(2.0, 3.0, 5.0);
-  goal->rotation().setIdentity();
-
-  ss.setStartAndGoalStates(start, goal);
-
-  ob::PlannerStatus solved = ss.solve();
-
-  if (solved) {
-    std::cout << "Found solution:" << std::endl;
-
-    ss.simplifySolution();
-    ss.getSolutionPath().print(std::cout);
-    ss.getSolutionPath().printAsMatrix(std::cout);
-
-    std::ofstream matrix_file("../matrix.txt");
-    ss.getSolutionPath().printAsMatrix(matrix_file);
-  } else {
-    std::cout << "No solution found\n";
+int main(int argc, char *argv[]) {
+  if (argc < 4)
+    print_usage();
+  // read in goal position
+  double goal_pos[3];
+  try {
+    goal_pos[0] = std::stod(argv[1]);
+    goal_pos[1] = std::stod(argv[2]);
+    goal_pos[2] = std::stod(argv[3]);
+  } catch (int e) {
+    print_usage();
   }
+
+  path_finding_setup();
+
+  double start_pos[3] = {0.0};
+
+  ompl::geometric::PathGeometric *path = find_path(start_pos, goal_pos);
+  if (!path) {
+    return 0;
+  }
+
+  double tool_offset[3] = {0.0};
+
+  double servo_angles[4];
+  cart_to_drive_posonly(&mark2_0, goal_pos, 0.0, tool_offset, servo_angles);
+
+  printf("Drive positions: %f, %f, %f", servo_angles[0] * RAD_TO_DEG,
+         servo_angles[1] * RAD_TO_DEG, servo_angles[2] * RAD_TO_DEG);
+
+  return 0;
 }
