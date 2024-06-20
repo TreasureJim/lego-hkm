@@ -16,6 +16,7 @@ add_subdirectory(libs/IK-lib)
 set(SOURCE_FILES
     src/main.cpp
     src/path_finding.cpp
+    src/spacial_conv.cpp
 )
 
 add_executable(LegoHKM ${SOURCE_FILES})
