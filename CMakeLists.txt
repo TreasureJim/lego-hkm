@@ -12,15 +12,18 @@ else ()
 endif ()
 
 add_subdirectory(libs/IK-lib)
+add_subdirectory(libs/librobotcontrol)
 
 set(SOURCE_FILES
     src/main.cpp
     src/path_finding.cpp
     src/spacial_conv.cpp
+    src/mark2_0_fixed.cpp
+    src/robot.cpp
 )
 
 add_executable(LegoHKM ${SOURCE_FILES})
 target_include_directories(LegoHKM PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(LegoHKM PRIVATE ompl IK-lib)
+target_link_libraries(LegoHKM PRIVATE ompl IK-lib robotics_cape)
 
 # add_compile_options(-Wall -Wconversion -g -fstack-usage -DEXTRA_CALC -O0 -lm)

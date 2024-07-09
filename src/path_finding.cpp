@@ -1,3 +1,4 @@
+#include <array>
 #include <memory>
 #include <ompl-1.6/ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl-1.6/ompl/geometric/PathGeometric.h>
@@ -7,8 +8,10 @@
 #include <ompl/geometric/SimpleSetup.h>
 #include <vector>
 
+#include "kinematics.h"
 #include "robot_config.h"
 #include "spacial_conv.h"
+#include "mark2_0_fixed.h"
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
@@ -20,7 +23,13 @@ bool check_state(const ob::State *state) {
   const ob::RealVectorStateSpace::StateType *pos =
       se3state->as<ob::RealVectorStateSpace::StateType>(0);
 
-  if (se3state->getX() < ROBOT_INVALID_RADIUS) {
+  // if (se3state->getX() < ROBOT_INVALID_RADIUS) {
+  //   return false;
+  // }
+
+  double pos_arr[3] = {se3state->getX(), se3state->getY(), se3state->getZ()};
+  double _[4];
+  if (inv(&mark2_0_fixed, pos_arr, 0.0, _) < 0) {
     return false;
   }
 
@@ -32,7 +41,7 @@ og::SimpleSetup ss(space);
 
 void path_finding_setup() {
   ob::RealVectorBounds bounds(3);
-  bounds.setLow(0);
+  bounds.setLow(-100);
   bounds.setHigh(100);
 
   space->setBounds(bounds);

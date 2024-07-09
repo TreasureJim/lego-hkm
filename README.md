@@ -2,9 +2,9 @@
 
 C Code
 
-- make prototype which takes goal position and translates that to motor positions
-- make that into a library
-- add more advanced movement functions
+[x] make prototype which takes goal position and translates that to motor positions
+[ ] make that into a library
+[ ] add more advanced movement functions
     - move radial
     - etc
 
