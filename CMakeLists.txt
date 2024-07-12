@@ -3,18 +3,9 @@ cmake_minimum_required(VERSION 3.29)
 project(LegoHKM VERSION 0.1)
 
 option(BUILD_PROD "Build for BeagleBoard" OFF)
-if(BUILD_PROD)
-endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(libs/ompl)
-# find_package(ompl REQUIRED)
-# if (ompl_FOUND)
-#     message(STATUS "Found OMPL: ${ompl_DIR}")
-# else ()
-#     message(FATAL_ERROR "OMPL not found")
-# endif ()
 
 set(Boost_USE_MULTITHREADED ON)  
 find_package(Boost REQUIRED COMPONENTS thread)
@@ -28,7 +19,7 @@ add_subdirectory(libs/IK-lib)
 add_subdirectory(libs/librobotcontrol)
 
 set(SOURCE_FILES
-    src/main.cpp
+    src/math/3d_circle.cpp
     src/path_finding.cpp
     src/spacial_conv.cpp
     src/mark2_0_fixed.cpp
@@ -36,8 +27,24 @@ set(SOURCE_FILES
     src/robot.cpp
 )
 
+if(BUILD_PROD)
+    add_subdirectory(libs/ompl)
+
+    list(APPEND SOURCE_FILES src/board_main.cpp)
+else()
+find_package(ompl REQUIRED)
+    if (ompl_FOUND)
+        message(STATUS "Found OMPL: ${ompl_DIR}")
+    else ()
+        message(FATAL_ERROR "OMPL not found")
+    endif ()
+
+    list(APPEND SOURCE_FILES src/dev_main.cpp)
+    add_compile_options(-D DEV)
+endif()
+
 add_executable(LegoHKM ${SOURCE_FILES})
-target_include_directories(LegoHKM PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(LegoHKM PRIVATE ${Boost_LIBRARIES} ompl::ompl IK-lib robotics_cape)
+target_include_directories(LegoHKM PRIVATE ${PROJECT_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS})
+target_link_libraries(LegoHKM PRIVATE Boost::thread ${Boost_LIBRARIES} ompl::ompl IK-lib robotics_cape)
 
 # add_compile_options(-Wall -Wconversion -g -fstack-usage -DEXTRA_CALC -O0 -lm)
