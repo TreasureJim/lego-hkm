@@ -2,14 +2,19 @@ cmake_minimum_required(VERSION 3.29)
 
 project(LegoHKM VERSION 0.1)
 
+option(BUILD_PROD "Build for BeagleBoard" OFF)
+if(BUILD_PROD)
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(ompl REQUIRED)
-if (ompl_FOUND)
-    message(STATUS "Found OMPL: ${ompl_DIR}")
-else ()
-    message(FATAL_ERROR "OMPL not found")
-endif ()
+add_subdirectory(libs/ompl)
+# find_package(ompl REQUIRED)
+# if (ompl_FOUND)
+#     message(STATUS "Found OMPL: ${ompl_DIR}")
+# else ()
+#     message(FATAL_ERROR "OMPL not found")
+# endif ()
 
 set(Boost_USE_MULTITHREADED ON)  
 find_package(Boost REQUIRED COMPONENTS thread)
@@ -33,6 +38,6 @@ set(SOURCE_FILES
 
 add_executable(LegoHKM ${SOURCE_FILES})
 target_include_directories(LegoHKM PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(LegoHKM PRIVATE ${Boost_LIBRARIES} ompl IK-lib robotics_cape)
+target_link_libraries(LegoHKM PRIVATE ${Boost_LIBRARIES} ompl::ompl IK-lib robotics_cape)
 
 # add_compile_options(-Wall -Wconversion -g -fstack-usage -DEXTRA_CALC -O0 -lm)

@@ -1,3 +1,6 @@
 [submodule "libs/librobotcontrol"]
 	path = libs/librobotcontrol
 	url = https://github.com/beagleboard/librobotcontrol
+[submodule "libs/ompl"]
+	path = libs/ompl
+	url = https://github.com/ompl/ompl

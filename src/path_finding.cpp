@@ -1,7 +1,7 @@
 #include <array>
 #include <memory>
-#include <ompl-1.6/ompl/base/spaces/RealVectorStateSpace.h>
-#include <ompl-1.6/ompl/geometric/PathGeometric.h>
+#include <ompl/base/spaces/RealVectorStateSpace.h>
+#include <ompl/geometric/PathGeometric.h>
 #include <ompl/base/goals/GoalLazySamples.h>
 #include <ompl/base/spaces/SE3StateSpace.h>
 #include <ompl/geometric/GeneticSearch.h>
