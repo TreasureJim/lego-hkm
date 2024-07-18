@@ -4,6 +4,7 @@
 #include <Eigen/src/Core/Matrix.h>
 #include <array>
 #include <cmath>
+#include "kinematics.h"
 
 class Circle_3D {
 private:
@@ -130,6 +131,7 @@ public:
   Circle_3D(Eigen::Vector3d p1, Eigen::Vector3d p2, Eigen::Vector3d p3) {
     this->points = {p1, p2, p3};
     this->find_circle_centre_radius_3d();
+    this->paramtric_arc_3d();
   }
 
   /// float `p` between 0.0 and (2 * M_PI) - represents how far along the arc in radians

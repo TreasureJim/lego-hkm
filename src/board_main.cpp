@@ -9,7 +9,7 @@
 
 #include "kinematics.h"
 #include "mark2_0_fixed.h"
-#include "robot.h"
+#include "robot.hpp"
 #include "motors.h"
 
 void random_valid_cart_pos(double cart_pos[3]) {
@@ -30,11 +30,10 @@ void random_valid_cart_pos(double cart_pos[3]) {
 }
 
 int main (int argc, char *argv[]) {
-  if (!robot_setup()) return 0;
+  Robot robot;
+  if (robot.error) return 0;
 
   double goal_pos[3];
   random_valid_cart_pos(goal_pos);
-  move_linear(get_current_cart_loc().data(), goal_pos);
-
-  robot_shutdown();
+  robot.move_linear(robot.get_current_cart_loc().data(), goal_pos);
 }
