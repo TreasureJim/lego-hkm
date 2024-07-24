@@ -10,7 +10,6 @@
 #include "kinematics.h"
 #include "mark2_0_fixed.h"
 #include "robot.hpp"
-#include "motors.h"
 
 void random_valid_cart_pos(double cart_pos[3]) {
   double joint_angles[4];

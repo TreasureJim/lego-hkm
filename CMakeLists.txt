@@ -8,8 +8,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
 
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_EXE_LINKER_FLAGS "-static")
+
 set(SOURCE_FILES
-    src/math/3d_circle.cpp
     src/path_finding.cpp
     src/spacial_conv.cpp
     src/mark2_0_fixed.cpp
@@ -39,7 +42,7 @@ if(BUILD_PROD)
     set(Boost_USE_STATIC_LIBS   ON)
 else()
     find_package(ompl REQUIRED)
-    if (OMPL_FOUND)
+    if (ompl_FOUND)
         message(STATUS "Found OMPL: ${OMPL_INCLUDE_DIRS}")
     else ()
         message(FATAL_ERROR "OMPL not found")
@@ -77,11 +80,11 @@ target_include_directories(LegoHKM PRIVATE
 
     ${PROJECT_SOURCE_DIR}/include
 )
-target_link_libraries(LegoHKM PRIVATE
+target_link_libraries(LegoHKM PUBLIC
     Eigen3::Eigen
 
     ${Boost_LIBRARIES}
-    ${BOOST_A}
+    # ${BOOST_A}
 
     # ${OMPL_LIBRARIES}
     /opt/ompl-arm/share/libompl.a

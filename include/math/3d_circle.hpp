@@ -5,7 +5,7 @@
 #include <array>
 #include <cmath>
 #include "kinematics.h"
-#include "mark2_0_fixed.h"
+#include "mark2_0_fixed.hpp"
 #include "kinematics.h"
 
 class Circle_3D {

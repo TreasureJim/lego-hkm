@@ -1,4 +1,3 @@
-#include <array>
 #include <memory>
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/geometric/PathGeometric.h>
@@ -6,12 +5,11 @@
 #include <ompl/base/spaces/SE3StateSpace.h>
 #include <ompl/geometric/GeneticSearch.h>
 #include <ompl/geometric/SimpleSetup.h>
+#include <optional>
 #include <vector>
 
 #include "kinematics.h"
-#include "robot_config.h"
-#include "spacial_conv.h"
-#include "mark2_0_fixed.h"
+#include "mark2_0_fixed.hpp"
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
@@ -46,17 +44,16 @@ void path_finding_setup() {
 
   space->setBounds(bounds);
 
-  ss.setStateValidityChecker(&check_state);
+  ss.setStateValidityChecker(check_state);
 }
 
-ompl::geometric::PathGeometric *find_path(double start_pos[3],
-                                          double goal_pos[3]) {
+std::optional<std::vector<Eigen::Vector3d>> find_path(Eigen::Vector3d start_pos, Eigen::Vector3d goal_pos) {
   ob::ScopedState<ob::SE3StateSpace> start(space);
-  start->setXYZ(start_pos[0], start_pos[1], start_pos[2]);
+  start->setXYZ(start_pos.x(), start_pos.y(),start_pos.z());
   start->rotation().setIdentity();
 
   ob::ScopedState<ob::SE3StateSpace> goal(space);
-  goal->setXYZ(goal_pos[0], goal_pos[1], goal_pos[2]);
+  goal->setXYZ(goal_pos.x(), goal_pos.y(),goal_pos.z());
   goal->rotation().setIdentity();
 
   ss.setStartAndGoalStates(start, goal);
@@ -64,28 +61,23 @@ ompl::geometric::PathGeometric *find_path(double start_pos[3],
   ob::PlannerStatus solved = ss.solve();
 
   if (solved) {
-    std::cout << "Found solution:" << std::endl;
-
+    // std::cout << "Found solution:" << std::endl;
     ss.simplifySolution();
-
-    // std::ofstream matrix_file("../matrix.txt");
-    // ss.getSolutionPath().printAsMatrix(matrix_file);
-
-    return &ss.getSolutionPath();
   } else {
     std::cout << "No solution found\n";
-    return nullptr;
+    return std::nullopt;
   }
-}
+  ompl::geometric::PathGeometric path = ss.getSolutionPath();;
 
-void geometric_paths_to_cart_coords(ompl::geometric::PathGeometric* path, std::vector<std::array<double, 3>>& path_cart_coords) {
-  for (const ompl::base::State* state :path->getStates()) {
+
+  std::vector<Eigen::Vector3d> path_coords;
+  path_coords.reserve(path.getStateCount());
+
+  for (const ompl::base::State* state :path.getStates()) {
     std::vector<double> coord_vec;
     space->copyToReals(coord_vec, state);
-    
-    std::array<double, 3> cart_coord;
-    cyl_pol_to_cart(coord_vec.data(), cart_coord.data());
+    Eigen::Vector3d cart_coord = {coord_vec[0], coord_vec[1], coord_vec[2]};
 
-    path_cart_coords.push_back(cart_coord);
+    path_coords.push_back(cart_coord);
   }
 }
