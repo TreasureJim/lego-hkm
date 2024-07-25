@@ -2,6 +2,8 @@
 #include <cmath>
 #include <cstdint>
 
+void matrix_to_pos(double matrix[4][4], double pos[3]);
+
 extern double DEFAULT_JOINT_ANGLES[4];
 extern double current_joint_angles[4];
 

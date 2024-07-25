@@ -1,4 +1,4 @@
-#include "mark2_0_fixed.h"
+#include "mark2_0_fixed.hpp"
 #include "rc/servo.h"
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
 #include <boost/thread.hpp>
@@ -13,6 +13,12 @@ double DEFAULT_JOINT_ANGLES[] = {
     mark2_0_fixed.joint_lims[2][0], mark2_0_fixed.joint_lims[3][0]};
 
 double current_joint_angles[4];
+
+void matrix_to_pos(double matrix[4][4], double pos[3]) {
+  pos[0] = matrix[0][3];
+  pos[1] = matrix[1][3];
+  pos[2] = matrix[2][3];
+}
 
 bool motor_setup() {
   int result = !rc_servo_power_rail_en(1);

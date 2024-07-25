@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -93,5 +94,20 @@ int Robot::move_radial(double p1[3], double p2[3], double p3[3]) {
     this->go_to(circle.get_arc_coord(p));
   }
 
+  return 1;
+}
+
+int Robot::move_joint(double joints[4]) {
+  // checking if valid angles
+  double matrix[4][4];
+  fwd(&mark2_0_fixed, joints, matrix, NULL);
+  double pos[3];
+  matrix_to_pos(matrix, pos);
+  if (cart_to_drive(&mark2_0_fixed, pos, 0, NULL) < 0) {
+    return 0;
+  }
+
+  // move motors
+  motor_transition_angle(current_joint_angles, joints);
   return 1;
 }
