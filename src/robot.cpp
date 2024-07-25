@@ -19,17 +19,13 @@ Eigen::Vector3d joint_angle_to_cart_loc(const double angles[4]) {
   double mat[4][4];
   fwd(&mark2_0_fixed, angles, mat, NULL);
 
-  Eigen::Vector3d cart_pos = {mat[0][3], mat[1][3], mat[2][3]};
-
-  return cart_pos;
+  return Eigen::Vector3d(mat[0][3], mat[1][3], mat[2][3]);
 }
 
 int Robot::robot_setup() {
   if (!motor_setup())
     return false;
   motor_reset_angle();
-  this->cart_pos =
-      Eigen::Vector3d(joint_angle_to_cart_loc(current_joint_angles));
   return true;
 }
 
@@ -59,8 +55,8 @@ Eigen::Vector3d Robot::get_current_cart_loc() {
   return joint_angle_to_cart_loc(current_joint_angles);
 }
 
-int Robot::move_linear(Eigen::Vector3d start_pos, Eigen::Vector3d goal_pos) {
-  auto path = find_path(start_pos, goal_pos);
+int Robot::move_linear(Eigen::Vector3d goal_pos) {
+  auto path = find_path(this->get_current_cart_loc(), goal_pos);
   if (!path.has_value()) {
     fprintf(stderr, "ERROR: Could not plan path.\n");
     return 0;
