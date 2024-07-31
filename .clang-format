@@ -1,0 +1,11 @@
+BasedOnStyle: LLVM
+
+UseTab: AlignWithSpaces
+IndentWidth: 4
+TabWidth: 4
+
+ColumnLimit: 120
+
+IndentCaseLabels: false
+IndentAccessModifiers: false
+

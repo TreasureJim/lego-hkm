@@ -1,5 +1,3 @@
-#pragma once
-
 #include <cmath>
 #include <cstddef>
 #include <cstdio>
@@ -40,6 +38,7 @@ int Robot::go_to(Eigen::Vector3d pos) {
   }
 
   motor_transition_angle(current_joint_angles, goal_servo_angles);
+  return 1;
 }
 
 void Robot::robot_shutdown() {
