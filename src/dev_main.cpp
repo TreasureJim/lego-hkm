@@ -26,9 +26,5 @@ Eigen::Vector3d random_valid_cart_pos(void) {
 }
 
 int main (int argc, char *argv[]) {
-  Robot robot;
-  if (robot.error)
-    return 0;
-
-  robot.move_linear( random_valid_cart_pos());
+  // TODO: write test scripts
 }

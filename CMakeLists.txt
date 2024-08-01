@@ -6,12 +6,7 @@ option(BUILD_PROD "Build for BeagleBoard" OFF)
 option(USE_OMPL "Build with OMPL library" OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
-
-# set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-# set(BUILD_SHARED_LIBS OFF)
-# set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 set(SOURCE_FILES
     src/mark2_0_fixed.cpp
@@ -21,6 +16,8 @@ set(SOURCE_FILES
 )
 
 if (USE_OMPL)
+    add_compile_options(-DUSE_OMPL)
+
     set(OMPL_BUILD_TESTS OFF)
     set(OMPL_BUILD_PYBINDINGS OFF)
     set(OMPL_BUILD_PYTESTS OFF)
@@ -34,7 +31,7 @@ if (USE_OMPL)
         message(FATAL_ERROR "OMPL not found")
     endif ()
 
-    list(APPEND SOURCE_FILES src/path_finding.cpp)
+    list(APPEND SOURCE_FILES src/ompl_pathfinding.cpp)
 else()
     message(STATUS "Using custom path finding")
     list(APPEND SOURCE_FILES src/custom_pathfinding.cpp)
