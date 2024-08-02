@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.0)
 
 project(LegoHKM VERSION 0.1)
 
@@ -42,7 +42,7 @@ if(BUILD_PROD)
     list(APPEND SOURCE_FILES src/board_main.cpp)
 
     # add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0 -static -w)
-    set(Boost_USE_STATIC_LIBS   ON)
+    # set(Boost_USE_STATIC_LIBS   ON)
 else()
     list(APPEND SOURCE_FILES src/dev_main.cpp)
     add_compile_options(-D DEV)
@@ -83,3 +83,5 @@ target_link_libraries(LegoHKM PRIVATE
     IK-lib
     robotics_cape
 )
+
+target_compile_features(LegoHKM PRIVATE cxx_std_17)

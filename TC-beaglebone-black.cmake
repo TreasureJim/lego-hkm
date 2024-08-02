@@ -2,16 +2,12 @@
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR x86)
 
-# set(CMAKE_FIND_ROOT_PATH /usr/lib32 /usr/local/lib32 /usr/local/boost_32)
-
 # which compilers to use for C and C++
-set(CMAKE_C_COMPILER arm-none-linux-gnueabihf-gcc)
-set(CMAKE_CXX_COMPILER arm-none-linux-gnueabihf-g++)
+set(CMAKE_C_COMPILER   arm-linux-gnueabihf-gcc)
+set(CMAKE_CXX_COMPILER arm-linux-gnueabihf-g++)
 
 # Specify the Boost root, include, and library directories
-set(BOOST_ROOT /opt/boost-arm)
-set(BOOST_INCLUDEDIR /opt/boost-arm/include)
-set(BOOST_LIBRARYDIR /opt/boost-arm/lib)
+set(BOOST_LIBRARYDIR /usr/lib/x86_64-linux-gnu)
 
 # where is the target environment located
 # set(CMAKE_FIND_ROOT_PATH  /usr/i586-mingw32msvc /home/alex/mingw-install)
