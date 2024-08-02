@@ -14,9 +14,10 @@ private:
     void robot_shutdown();
     int go_to(Eigen::Vector3d pos);
 
-    Robot();
 public:
     bool error = false;
+
+    Robot();
     ~Robot();
 
     Eigen::Vector3d get_current_cart_loc();
