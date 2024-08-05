@@ -15,6 +15,8 @@ RUN dpkg --add-architecture armhf && \
 RUN apt-get update && \
     apt-get install -y \
     libboost-thread-dev:armhf \
+    libboost-timer-dev:armhf \
+    libboost-chrono-dev:armhf \
     libboost-serialization-dev:armhf \
     libboost-filesystem-dev:armhf \
     libboost-system-dev:armhf \
