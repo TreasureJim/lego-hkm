@@ -6,14 +6,8 @@ option(BUILD_PROD "Build for BeagleBoard" OFF)
 option(USE_OMPL "Build with OMPL library" OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
-
-set(SOURCE_FILES
-    src/mark2_0_fixed.cpp
-    src/motors.cpp
-    src/robot.cpp
-    src/eigen_kinematics.cpp
-)
 
 if (USE_OMPL)
     add_compile_options(-DUSE_OMPL)
@@ -30,27 +24,22 @@ if (USE_OMPL)
     else ()
         message(FATAL_ERROR "OMPL not found")
     endif ()
-
-    list(APPEND SOURCE_FILES src/ompl_pathfinding.cpp)
-else()
-    message(STATUS "Using custom path finding")
-    list(APPEND SOURCE_FILES src/custom_pathfinding.cpp)
 endif()
 
 
 if(BUILD_PROD)
-    list(APPEND SOURCE_FILES src/board_main.cpp)
-
     # add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0 -static -w)
     # set(Boost_USE_STATIC_LIBS   ON)
 else()
-    list(APPEND SOURCE_FILES src/dev_main.cpp)
+    add_subdirectory(libs/chan)
+
     add_compile_options(-D DEV)
 endif()
 
-find_package(Boost REQUIRED COMPONENTS thread serialization filesystem system program_options)
+find_package(Boost REQUIRED COMPONENTS thread timer chrono serialization filesystem system program_options)
 if (Boost_FOUND)
     message(STATUS "Found boost: ${Boost_DIR}")
+    message(STATUS "Boost libs: ${Boost_LIBRARIES}")
 else ()
     message(FATAL_ERROR "boost not found")
 endif ()
@@ -65,23 +54,6 @@ endif ()
 add_subdirectory(libs/IK-lib)
 add_subdirectory(libs/librobotcontrol)
 
-add_executable(LegoHKM ${SOURCE_FILES})
+add_subdirectory(src)
 
-target_include_directories(LegoHKM PRIVATE 
-    ${Boost_INCLUDE_DIRS}
-    ${OMPL_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/ompl/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/librobotcontrol/library/include
-
-    ${PROJECT_SOURCE_DIR}/include
-)
-
-target_link_libraries(LegoHKM PRIVATE
-    Eigen3::Eigen
-    ${Boost_LIBRARIES}
-    ${OMPL_LIBRARIES}
-    IK-lib
-    robotics_cape
-)
-
-target_compile_features(LegoHKM PRIVATE cxx_std_17)
+add_subdirectory(tests)

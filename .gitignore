@@ -4,3 +4,4 @@ board/
 compile_commands.json
 matrix.txt
 .vscode
+libs/
