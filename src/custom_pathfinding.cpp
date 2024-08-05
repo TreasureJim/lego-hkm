@@ -1,5 +1,5 @@
-#include "pathfinding.hpp"
 #include "eigen_kinematics.hpp"
+#include "pathfinding.hpp"
 #include <Eigen/Dense>
 #include <vector>
 
@@ -69,10 +69,16 @@ Eigen::Vector3d PathFinding::ray_box_intersection(Eigen::Vector3d pos, Eigen::Ve
 std::optional<std::vector<Eigen::Vector3d>> PathFinding::find_path(Eigen::Vector3d start_pos,
                                                                    Eigen::Vector3d goal_pos) {
 	// check if within limits
-	if (!pos_within_bounding_box(start_pos))
+	if (!pos_within_bounding_box(start_pos)) {
+		fprintf(stderr, "[ERROR] find path: position x: %f, y: %f, z: %f is not within bounding area.\n", start_pos.x(),
+		        start_pos.y(), start_pos.z());
 		return std::nullopt;
-	if (!pos_within_bounding_box(goal_pos))
+	}
+	if (!pos_within_bounding_box(goal_pos)) {
+		fprintf(stderr, "[ERROR] find path: position x: %f, y: %f, z: %f is not within bounding area.\n", goal_pos.x(),
+		        goal_pos.y(), goal_pos.z());
 		return std::nullopt;
+	}
 
 	std::vector<Eigen::Vector3d> path = {start_pos};
 
