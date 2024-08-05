@@ -15,7 +15,8 @@
 
 Eigen::Vector3d joint_angle_to_cart_loc(const double angles[4]) {
 	double mat[4][4];
-	fwd(&mark2_0_fixed, angles, mat, NULL);
+	double orient;
+	fwd(&mark2_0_fixed, angles, mat, &orient);
 
 	return Eigen::Vector3d(mat[0][3], mat[1][3], mat[2][3]);
 }
@@ -44,7 +45,7 @@ void Robot::robot_shutdown() {
 	motor_shutdown();
 }
 
-Robot::Robot() { error = robot_setup(); }
+Robot::Robot() { error = !robot_setup(); }
 
 Robot::~Robot() { robot_shutdown(); }
 
@@ -57,15 +58,15 @@ int Robot::move_linear(Eigen::Vector3d goal_pos) {
 		return 0;
 	}
 
-	for (const auto &coord : *path) {
+	for (const auto &coord : path.value()) {
 		double servo_angles[4];
 		if (cart_to_drive(&mark2_0_fixed, coord.data(), 0.0, servo_angles) < 0) {
 			fprintf(stderr, "Error generating motor position for x: %f, y: %f, z: %f.\n", coord[0], coord[1], coord[2]);
 			continue;
 		}
 
-		printf("Cart: x: %f, y: %f, z: %f. Drive positions: %f, %f, %f\n", coord[0], coord[1], coord[2],
-		       servo_angles[0] * RAD_TO_DEG, servo_angles[1] * RAD_TO_DEG, servo_angles[2] * RAD_TO_DEG);
+		// printf("Cart: x: %f, y: %f, z: %f. Drive positions: %f, %f, %f\n", coord[0], coord[1], coord[2], servo_angles[0] * RAD_TO_DEG, servo_angles[1] * RAD_TO_DEG, servo_angles[2] * RAD_TO_DEG);
+		printf("Cart: x: %f, y: %f, z: %f. Drive positions: %f, %f, %f\n", coord[0], coord[1], coord[2], servo_angles[0], servo_angles[1], servo_angles[2]);
 		this->go_to(coord);
 	}
 
@@ -91,10 +92,12 @@ int Robot::move_radial(double p1[3], double p2[3], double p3[3]) {
 int Robot::move_joint(double joints[4]) {
 	// checking if valid angles
 	double matrix[4][4];
-	fwd(&mark2_0_fixed, joints, matrix, NULL);
+	double orient;
+	fwd(&mark2_0_fixed, joints, matrix, &orient);
 	double pos[3];
 	matrix_to_pos(matrix, pos);
-	if (cart_to_drive(&mark2_0_fixed, pos, 0, NULL) < 0) {
+	double q[4];
+	if (cart_to_drive(&mark2_0_fixed, pos, 0, q) < 0) {
 		return 0;
 	}
 
