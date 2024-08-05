@@ -46,7 +46,10 @@ target_link_libraries(LegoHKM PUBLIC
     ${OMPL_LIBRARIES}
     IK-lib
     robotics_cape
-    chan-static
 )
+
+if (NOT BUILD_PROD)
+    target_link_libraries(LegoHKM PRIVATE chan-static)
+endif()
 
 target_compile_features(LegoHKM PRIVATE cxx_std_17)
