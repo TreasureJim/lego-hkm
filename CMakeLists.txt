@@ -56,4 +56,6 @@ add_subdirectory(libs/librobotcontrol)
 
 add_subdirectory(src)
 
-add_subdirectory(tests)
+if (NOT BUILD_PROD)
+    add_subdirectory(tests)
+endif()
