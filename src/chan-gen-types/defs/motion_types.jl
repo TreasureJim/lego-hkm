@@ -1,7 +1,69 @@
 using StaticArrays
 
-struct JulietQueue
-    queue::Array{UInt8, 1}
+struct MotionId
+    id::SVector{16, UInt8}
+    status::Int8
+end
+
+struct RobTarget
+    x::Float64
+    y::Float64
+    z::Float64
+    a::Float64
+    b::Float64
+    c::Float64
+end
+
+struct HKMPos
+    j1::Float64
+    j2::Float64
+    j3::Float64
+    j4::Float64
+end
+
+struct MoveLinear
+    target::RobTarget
+    motion_id::SVector{16, UInt8}
+end
+
+struct MoveArc
+    apos::RobTarget
+    target::RobTarget
+    motion_id::SVector{16, UInt8}
+end
+
+struct MoveCircular
+    apos::RobTarget
+    target::RobTarget
+    motion_id::SVector{16, UInt8}
+end
+
+struct MoveJoint
+    target::HKMPos
+    motion_id::SVector{16, UInt8}
+end
+
+struct Velocity
+    percentage::Float64
+    path_speed::Float64
+    orientation_speed::Float64
+    external_axis_l::Float64
+    external_axis_j::Float64
+    motion_id::SVector{16, UInt8}
+end
+
+#########
+
+struct BlendValue
+    percentage::Float64
+    distance::Float64
+    vel_const::Float64
+end
+
+struct Blend
+    blend_type::UInt16
+    blend_value::BlendValue
+    motion_id::SVector{16, UInt8}
 end
 
 struct JointTarget
@@ -31,43 +93,8 @@ struct JointPos
     j15::Float64
 end
 
-struct MotionId
-    id::SVector{16, UInt8}
-    status::Int8
-end
-
-struct HKMPos
-    j1::Float64
-    j2::Float64
-    j3::Float64
-    j4::Float64
-end
-
-struct MotionMovJ
-    target::JointTarget
-    motion_id::SVector{16, UInt8}
-end
-
-struct Velocity
-    percentage::Float64
-    path_speed::Float64
-    orientation_speed::Float64
-    external_axis_l::Float64
-    external_axis_j::Float64
-    motion_id::SVector{16, UInt8}
-end
-
 struct Trigger
     trigger_id::SVector{16, UInt8}
-end
-
-struct RobTarget
-    x::Float64
-    y::Float64
-    z::Float64
-    a::Float64
-    b::Float64
-    c::Float64
 end
 
 struct RobotIOMessage
@@ -88,23 +115,6 @@ struct OnDistance
     trigger_id::SVector{16, UInt8}
 end
 
-struct MoveLinear
-    target::RobTarget
-    motion_id::SVector{16, UInt8}
-end
-
-struct MoveArc
-    apos::RobTarget
-    target::RobTarget
-    motion_id::SVector{16, UInt8}
-end
-
-struct MoveCircular
-    apos::RobTarget
-    target::RobTarget
-    motion_id::SVector{16, UInt8}
-end
-
 struct MotionInfo
     nr_expected_params::Int64
     motion_id::SVector{16, UInt8}
@@ -118,14 +128,3 @@ struct KernelError
     error_emergency::UInt64
 end
 
-struct BlendValue
-    percentage::Float64
-    distance::Float64
-    vel_const::Float64
-end
-
-struct Blend
-    blend_type::UInt16
-    blend_value::BlendValue
-    motion_id::SVector{16, UInt8}
-end
