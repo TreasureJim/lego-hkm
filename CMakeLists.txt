@@ -31,7 +31,6 @@ if(BUILD_PROD)
     # add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0 -static -w)
     # set(Boost_USE_STATIC_LIBS   ON)
 else()
-    add_subdirectory(libs/chan)
 
     add_compile_options(-D DEV)
 endif()
@@ -53,6 +52,7 @@ endif ()
 
 add_subdirectory(libs/IK-lib)
 add_subdirectory(libs/librobotcontrol)
+add_subdirectory(libs/chan)
 
 add_subdirectory(src)
 
