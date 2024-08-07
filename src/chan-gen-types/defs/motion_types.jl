@@ -9,6 +9,7 @@ struct RobTarget
     x::Float64
     y::Float64
     z::Float64
+    j4::Float64
     a::Float64
     b::Float64
     c::Float64
@@ -40,6 +41,11 @@ end
 
 struct MoveJoint
     target::HKMPos
+    motion_id::SVector{16, UInt8}
+end
+
+struct MovePos
+    target::RobTarget
     motion_id::SVector{16, UInt8}
 end
 

@@ -21,6 +21,8 @@ set(SOURCE_FILES
     motors.cpp
     robot.cpp
     eigen_kinematics.cpp
+    juliet_comms.cpp
+    robot_thread.cpp
     ${CHAN_GEN_FILES}
 )
 
