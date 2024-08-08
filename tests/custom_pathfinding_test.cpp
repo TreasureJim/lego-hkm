@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include <Eigen/src/Core/Matrix.h>
 #include <cassert>
+#include <iostream>
 #include <mark2_0_fixed.hpp>
 #include "test_helpers.hpp"
 
@@ -20,6 +21,7 @@ inline bool validate_position(Eigen::Vector3d pos) {
 int main() {
 	auto start = random_valid_cart_pos();
 	auto end = random_valid_cart_pos();
+	std::cout << start << '\n' << end << std::endl;
 
 	PathFinding pathfinding;
 	auto path_opt = pathfinding.find_path(start, end);

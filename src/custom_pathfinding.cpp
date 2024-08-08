@@ -9,8 +9,8 @@ PathFinding::PathFinding(Eigen::Vector3d limits_min, Eigen::Vector3d limits_max)
 }
 
 inline bool PathFinding::pos_within_bounding_box(Eigen::Vector3d pos) {
-	return pos.x() < this->limits_min.x() || pos.x() > this->limits_max.x() || pos.y() < this->limits_min.y() ||
-	       pos.y() > this->limits_max.y() || pos.z() < this->limits_min.z() || pos.z() > this->limits_max.z();
+	return pos.x() > this->limits_min.x() || pos.x() < this->limits_max.x() || pos.y() > this->limits_min.y() ||
+	       pos.y() < this->limits_max.y() || pos.z() > this->limits_min.z() || pos.z() < this->limits_max.z();
 }
 
 std::optional<Eigen::Vector3d> PathFinding::find_last_valid_pos(const Eigen::Vector3d &start_pos,
@@ -66,6 +66,18 @@ Eigen::Vector3d PathFinding::ray_box_intersection(Eigen::Vector3d pos, Eigen::Ve
 	return pos + t_hit * dir;
 }
 
+/// Attempts to find closest valid position to start_pos
+Eigen::Vector3d generate_closest_valid_pos(Eigen::Vector3d start_pos, Eigen::Vector3d bounding_pos) {
+	auto dir = bounding_pos - start_pos;
+
+	for (int i = 10; i > 1; i--) {
+		auto try_pos = start_pos + dir / i;
+		if (inverse(try_pos).has_value()) return try_pos;
+	}
+
+	return bounding_pos;
+}
+
 std::optional<std::vector<Eigen::Vector3d>> PathFinding::find_path(Eigen::Vector3d start_pos,
                                                                    Eigen::Vector3d goal_pos) {
 	// check if within limits
@@ -83,15 +95,16 @@ std::optional<std::vector<Eigen::Vector3d>> PathFinding::find_path(Eigen::Vector
 	std::vector<Eigen::Vector3d> path = {start_pos};
 
 	while (true) {
-		auto pos_opt = find_last_valid_pos(path.back(), goal_pos);
+		auto hit_pos_opt = find_last_valid_pos(path.back(), goal_pos);
 		// check if path from last node to goal is clear
-		if (!pos_opt.has_value())
+		if (!hit_pos_opt.has_value())
 			break;
-		path.push_back(pos_opt.value());
+		// this is the position that it hits an invalid position
+		auto hit_pos = hit_pos_opt.value();
 
-		auto vec_cross = (path.end()[-2] - path.back()).cross(UP_VEC).normalized();
-		auto intersection_point = this->ray_box_intersection(path.back(), vec_cross);
-		path.push_back(path.back() + vec_cross * (intersection_point - path.back()).norm() / 2);
+		auto vec_cross = (path.back() - hit_pos).cross(UP_VEC).normalized();
+		auto intersection_point = this->ray_box_intersection(hit_pos, vec_cross);
+		path.push_back(generate_closest_valid_pos(hit_pos, intersection_point));
 	}
 
 	path.push_back(goal_pos);

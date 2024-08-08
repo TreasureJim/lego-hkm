@@ -21,9 +21,7 @@ add_test(
   COMMAND $<TARGET_FILE:custom_pathfinding_test>
   )
 
-# UNFINISHED TEST
-
-# Visualises planned path given from path planner
+# Builds library for visualising pathfinding
 add_library(custom_pathfinding_vis_test SHARED
     custom_pathfinding_vis_test.cpp
     ${SOURCE_DIR}/eigen_kinematics.cpp
@@ -33,8 +31,9 @@ add_library(custom_pathfinding_vis_test SHARED
 )
 
 target_link_libraries(custom_pathfinding_vis_test PRIVATE Eigen3::Eigen IK-lib)
-
-# add_test(
-#   NAME custom_pathfinding_vis_test
-#   COMMAND $<TARGET_FILE:custom_pathfinding_test>
-#   )
+target_include_directories(custom_pathfinding_vis_test PUBLIC ${EIGEN3_INCLUDE_DIR})
+set_target_properties(custom_pathfinding_vis_test PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN YES
+)
