@@ -136,8 +136,8 @@ public:
     this->paramtric_arc_3d();
   }
 
-  /// float `p` between 0.0 and (2 * M_PI) - represents how far along the arc in radians
-  /// Returns: gives the coordinate of the circle given `t`
+  /// float `t` between 0.0 and (2 * M_PI) - represents how far along the arc in radians
+  /// Returns: gives the coordinate of a point on the circle given `t`
   Eigen::Vector3d get_circle_coord(float t) {
 		return this->origin_3d + this->radius * (cos(t) * this->plane_vec1 + sin(t) * this->plane_vec2);
 	}
