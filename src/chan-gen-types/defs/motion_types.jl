@@ -23,39 +23,39 @@ struct HKMPos
 end
 
 struct MoveLinear
-    target::RobTarget
     motion_id::SVector{16, UInt8}
+    target::RobTarget
 end
 
 struct MoveArc
+    motion_id::SVector{16, UInt8}
     apos::RobTarget
     target::RobTarget
-    motion_id::SVector{16, UInt8}
 end
 
 struct MoveCircular
+    motion_id::SVector{16, UInt8}
     apos::RobTarget
     target::RobTarget
-    motion_id::SVector{16, UInt8}
 end
 
 struct MoveJoint
-    target::HKMPos
     motion_id::SVector{16, UInt8}
+    target::HKMPos
 end
 
 struct MovePos
-    target::RobTarget
     motion_id::SVector{16, UInt8}
+    target::RobTarget
 end
 
 struct Velocity
+    motion_id::SVector{16, UInt8}
     percentage::Float64
     path_speed::Float64
     orientation_speed::Float64
     external_axis_l::Float64
     external_axis_j::Float64
-    motion_id::SVector{16, UInt8}
 end
 
 #########
@@ -67,9 +67,9 @@ struct BlendValue
 end
 
 struct Blend
+    motion_id::SVector{16, UInt8}
     blend_type::UInt16
     blend_value::BlendValue
-    motion_id::SVector{16, UInt8}
 end
 
 struct JointTarget
@@ -122,8 +122,8 @@ struct OnDistance
 end
 
 struct MotionInfo
-    nr_expected_params::Int64
     motion_id::SVector{16, UInt8}
+    nr_expected_params::Int64
 end
 
 struct KernelError
