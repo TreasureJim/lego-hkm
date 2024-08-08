@@ -1,5 +1,4 @@
 #include <cmath>
-#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -73,17 +72,29 @@ int Robot::move_linear(Eigen::Vector3d goal_pos) {
 	return 0;
 }
 
-int Robot::move_radial(double p1[3], double p2[3], double p3[3]) {
-	Eigen::Vector3d v1(p1[0], p1[1], p1[2]);
-	Eigen::Vector3d v2(p2[0], p2[1], p2[2]);
-	Eigen::Vector3d v3(p3[0], p3[1], p3[2]);
+int Robot::move_arc(Eigen::Vector3d v2, Eigen::Vector3d v3) {
+	Eigen::Vector3d v1 = this->get_current_cart_loc();
 
 	Circle_3D circle(v1, v2, v3);
 	if (!circle)
 		return 0;
 
-	for (float p = 0.0; p <= 1.0; p += 0.5) {
+	for (float p = 0.0; p <= 1.0; p += 0.05) {
 		this->go_to(circle.get_arc_coord(p));
+	}
+
+	return 1;
+}
+
+int Robot::move_circular(Eigen::Vector3d v2, Eigen::Vector3d v3) {
+	Eigen::Vector3d v1 = this->get_current_cart_loc();
+
+	Circle_3D circle(v1, v2, v3);
+	if (!circle)
+		return 0;
+
+	for (float a = 0.0; a <= 2 * M_PI; a += 0.05) {
+		this->go_to(circle.get_arc_coord(a));
 	}
 
 	return 1;
