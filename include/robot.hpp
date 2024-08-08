@@ -26,3 +26,5 @@ public:
     int move_circular(Eigen::Vector3d v2, Eigen::Vector3d v3);
     int move_joint(double joints[4]);
 };
+
+void robot_thread_func();

@@ -1,4 +1,5 @@
 #include "juliet_comms.hpp"
+#include "robot.hpp"
 #include <arpa/inet.h>
 #include <cstdio>
 #include <cstdlib>
@@ -51,9 +52,7 @@ int main(int argc, char *argv[]) {
 	if ((jl_socket = connect_to_server(argv)) < 0)
 		;
 
-	// start robot thread
-	// TODO
-	// std::thread robot_thread()
+	std::thread robot_thread(robot_thread_func);
 
 	juliet_communication(jl_socket);
 
