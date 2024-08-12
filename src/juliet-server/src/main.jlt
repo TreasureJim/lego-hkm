@@ -1,0 +1,25 @@
+using .RobotServer
+using .Motion_types
+using Avon
+
+function main()
+	var serverinfo = start_server(UInt16(9000))
+	var enc = serverinfo.enc::Encoder{TCPWriter}
+
+	encode(enc, MoveLinear(
+		uuid(),
+		tuple(UInt32(1)),
+		RobTarget(
+			1.0,
+			1.0,
+			1.0,
+			1.0,
+			1.0,
+			1.0,
+			1.0
+		)
+	))
+	wait(command_completed)
+
+	stop_server(serverinfo.server)
+end

@@ -1,0 +1,71 @@
+module RobotServer
+
+using Sockets
+using Avon
+include("./motion_types.jlt")
+using .Motion_types
+
+struct MotionError <: Exception
+    id::Array{UInt8, 1}
+end
+
+function setup_decoder(server::TCPServer, port::UInt16)::Decoder
+    var socket_recv = accept(server)
+    var reader = TCPReader(socket_recv)
+    Decoder(reader)
+end
+
+var command_completed = Event(true)
+export command_completed
+
+function robot_decoder(dec::Decoder)
+	while true
+		var motion = decode(dec)::MotionId
+
+		if motion.status == -1
+			throw(MotionError(motion.id))
+		elseif motion.status == 1
+			print("Motion finished: ")
+			println(motion.id)
+			notify(command_completed)
+		end
+	end
+end
+
+struct ServerInfo
+	server::TCPServer
+	enc::Encoder
+end
+
+function start_server(port::UInt16)::ServerInfo
+	var server = listen(port)
+	print("Listening on ")
+	println(port)
+
+	var socket_robot = accept(server)
+	println("Connected to robot")
+
+	var enc = Encoder(TCPWriter(socket_robot))
+	var dec = Decoder(TCPReader(socket_robot))
+
+    # Register channel types on both ends
+    register(enc, MoveLinear)
+    register(enc, MoveArc)
+    register(enc, MoveCircular)
+    register(enc, MoveJoint)
+    register(enc, MovePos)
+
+    register(dec, MotionId)
+
+	schedule(Task("Robot decoder", () -> robot_decoder(dec)))
+
+	ServerInfo(server, enc)
+end
+export start_server
+
+function stop_server(server::TCPServer)
+    close(server)
+end
+export stop_server
+
+end
