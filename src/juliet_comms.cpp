@@ -1,5 +1,7 @@
 #include <condition_variable>
+#include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <mutex>
 #include <queue>
 
@@ -43,6 +45,7 @@ void unknown_type_error_func(uint8_t *sig, uint32_t sig_len, void *ctx) {
 	fprintf(stderr, "[ERROR] parsing type from juliet queue.\n");
 }
 
+struct chan_encoder* encoder = nullptr;
 void juliet_communication(int juliet_socket) {
 	auto j_writer = fd_writer_new(juliet_socket);
 	auto j_reader = fd_reader_new(juliet_socket);
@@ -65,3 +68,12 @@ void juliet_communication(int juliet_socket) {
 
 	printf("Reached EOF in socket.\n");
 }
+
+void send_command_status(const motion_command& command, command_status_e status) {
+	motionid motion_status = {
+		.status = (int8_t)status
+	};
+	memcpy(motion_status.id, command.motion.linear.motion_id, 16);
+
+	chan_encode_motionid(encoder, &motion_status);
+} 
