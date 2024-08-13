@@ -5,6 +5,7 @@ set(CHAN_DEF_FILES
 )
 set(CHAN_GEN_FILES 
     ${CHAN_GEN_TYPES_DIR}/gen_c/motion_types.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/juliet-server/src/gen_types/motion_types.jlt
 )
 
 add_custom_command(
