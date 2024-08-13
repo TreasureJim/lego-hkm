@@ -89,8 +89,11 @@ void robot_thread_func() {
 		}
 
 		if (!execute_command(robot)) {
+			send_command_status(current_command, CMD_FAILED);
 			return;
 		}
+		send_command_status(current_command, CMD_COMPLETED);
+
 		previous_command = current_command;
 	}
 }
