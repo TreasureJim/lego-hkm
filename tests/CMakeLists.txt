@@ -4,6 +4,7 @@ set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
+  ${SOURCE_DIR}/chan-gen-types/gen_c
 )
 
 add_executable(custom_pathfinding_test 
@@ -37,3 +38,12 @@ set_target_properties(custom_pathfinding_vis_test PROPERTIES
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN YES
 )
+
+# Test juliet communication queue
+add_executable(juliet_comms_test
+    ${SOURCE_DIR}/main.cpp
+    ${SOURCE_DIR}/juliet_comms.cpp
+    ${SOURCE_DIR}/chan-gen-types/gen_c/motion_types.c
+    julia_communication_test.cpp
+)
+target_link_libraries(juliet_comms_test PRIVATE chan)
