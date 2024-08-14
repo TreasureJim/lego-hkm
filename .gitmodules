@@ -7,4 +7,4 @@
 [submodule "libs/chan"]
 	path = libs/chan
 	url = git@gitlab.cognibotics.net:nextgen/chan.git
-	branch = 79-fix-bugs-in-juliet-codegen
+	branch = juliet-codegen-extra-params
