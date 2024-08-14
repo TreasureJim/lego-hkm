@@ -41,9 +41,18 @@ set_target_properties(custom_pathfinding_vis_test PROPERTIES
 
 # Test juliet communication queue
 add_executable(juliet_comms_test
-    ${SOURCE_DIR}/main.cpp
     ${SOURCE_DIR}/juliet_comms.cpp
-    ${SOURCE_DIR}/chan-gen-types/gen_c/motion_types.c
+    ${SOURCE_DIR}/main.cpp
     julia_communication_test.cpp
 )
-target_link_libraries(juliet_comms_test PRIVATE chan)
+target_link_libraries(juliet_comms_test PUBLIC 
+chan-static
+chan-comms
+)
+set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
+target_include_directories(juliet_comms_test PUBLIC
+    ${LOCAL_LIBS_DIR}/chan/include
+    ${CMAKE_BINARY_DIR}/gen_c
+
+    ${PROJECT_SOURCE_DIR}/include
+)
