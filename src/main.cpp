@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 
 	int jl_socket;
 	if ((jl_socket = connect_to_server(argv)) < 0)
-		;
+		exit(1);
 
 	std::thread robot_thread(robot_thread_func);
 

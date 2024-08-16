@@ -46,27 +46,28 @@ void unknown_type_error_func(uint8_t *sig, uint32_t sig_len, void *ctx) {
 }
 
 struct chan_encoder* encoder = nullptr;
+struct chan_decoder* decoder = nullptr;
 void juliet_communication(int juliet_socket) {
 	auto j_writer = fd_writer_new(juliet_socket);
 	auto j_reader = fd_reader_new(juliet_socket);
-	auto j_enc = chan_encoder_new(j_writer);
-	auto j_dec = chan_decoder_new(j_reader, unknown_type_error_func, NULL);
+	encoder = chan_encoder_new(j_writer);
+	decoder = chan_decoder_new(j_reader, unknown_type_error_func, NULL);
 
 	// register encoder types
-	chan_enc_register_motionid(j_enc);
+	chan_enc_register_motionid(encoder);
 
 	// register decoder types
-	chan_dec_register_movepos(j_dec, movepos_callbck_func, NULL);
-	chan_dec_register_movelinear(j_dec, movelinear_callbck_func, NULL);
-	chan_dec_register_movearc(j_dec, movearc_callbck_func, NULL);
-	chan_dec_register_movecircular(j_dec, movecircular_callbck_func, NULL);
-	chan_dec_register_movejoint(j_dec, movejoint_callbck_func, NULL);
+	chan_dec_register_movepos(decoder, movepos_callbck_func, NULL);
+	chan_dec_register_movelinear(decoder, movelinear_callbck_func, NULL);
+	chan_dec_register_movearc(decoder, movearc_callbck_func, NULL);
+	chan_dec_register_movecircular(decoder, movecircular_callbck_func, NULL);
+	chan_dec_register_movejoint(decoder, movejoint_callbck_func, NULL);
 
 	// decode
-	while (chan_decode(j_dec))
-		;
+	int status;
+	while ((status = chan_decode(decoder)) == 0);
 
-	printf("Reached EOF in socket.\n");
+	printf("Received non-zero status from chan: %d.\n", status);
 }
 
 void send_command_status(const motion_command& command, command_status_e status) {
