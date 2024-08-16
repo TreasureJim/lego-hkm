@@ -8,7 +8,7 @@ set(CHAN_GEN_FILES_CXX
     ${CMAKE_BINARY_DIR}/gen_c/motion_types.c
 )
 set(CHAN_GEN_FILES_OTHER
-    ${CMAKE_BINARY_DIR}/juliet-server/src/gen_types/motion_types.jlt
+    ${CMAKE_BINARY_DIR}/juliet-server/src/motion_types.jlt
 )
 
 set(COMPILED_OUTPUT_DIR ${CMAKE_BINARY_DIR})
