@@ -9,6 +9,7 @@ void print_command(FILE *out, motion_command &command) {
 	for (int i = 0; i < 16; i++) {
 		fprintf(out, "%02x", command.motion.pos.motion_id[i]);
 	}
+	fprintf(out, "\n");
 }
 
 motion_command command;

@@ -56,3 +56,18 @@ target_include_directories(juliet_comms_test PUBLIC
 
     ${PROJECT_SOURCE_DIR}/include
 )
+
+add_executable(juliet_comms_server
+  julia_comm_server_test.cpp
+)
+target_link_libraries(juliet_comms_server PUBLIC 
+chan-static
+chan-comms
+)
+set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
+target_include_directories(juliet_comms_server PUBLIC
+    ${LOCAL_LIBS_DIR}/chan/include
+    ${CMAKE_BINARY_DIR}/gen_c
+
+    ${PROJECT_SOURCE_DIR}/include
+)
