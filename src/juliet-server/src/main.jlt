@@ -5,21 +5,26 @@ using Avon
 function main()
 	var serverinfo = start_server(UInt16(9000))
 	var enc = serverinfo.enc::Encoder{TCPWriter}
+	try
+		encode(enc, MoveLinear(
+			uuid(),
+			tuple(UInt32(1)),
+			RobTarget(
+				1.0,
+				1.0,
+				1.0,
+				1.0,
+				1.0,
+				1.0,
+				1.0
+			)
+		))
+		wait(command_completed)
+    catch e
+        var ae = e::ArgumentError
+        println(ae.message)
+    end
 
-	encode(enc, MoveLinear(
-		uuid(),
-		tuple(UInt32(1)),
-		RobTarget(
-			1.0,
-			1.0,
-			1.0,
-			1.0,
-			1.0,
-			1.0,
-			1.0
-		)
-	))
-	wait(command_completed)
 
 	stop_server(serverinfo.server)
 end
