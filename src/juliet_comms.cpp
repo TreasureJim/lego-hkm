@@ -45,13 +45,15 @@ void unknown_type_error_func(uint8_t *sig, uint32_t sig_len, void *ctx) {
 	fprintf(stderr, "[ERROR] parsing type from juliet queue.\n");
 }
 
-struct chan_encoder* encoder = nullptr;
-struct chan_decoder* decoder = nullptr;
+struct chan_encoder *encoder = nullptr;
+struct chan_decoder *decoder = nullptr;
+char decoder_ctx[] = "decoder context";
+
 void juliet_communication(int juliet_socket) {
 	auto j_writer = fd_writer_new(juliet_socket);
 	auto j_reader = fd_reader_new(juliet_socket);
 	encoder = chan_encoder_new(j_writer);
-	decoder = chan_decoder_new(j_reader, unknown_type_error_func, NULL);
+	decoder = chan_decoder_new(j_reader, unknown_type_error_func, decoder_ctx);
 
 	// register encoder types
 	chan_enc_register_motionid(encoder);
@@ -65,16 +67,16 @@ void juliet_communication(int juliet_socket) {
 
 	// decode
 	int status;
-	while ((status = chan_decode(decoder)) == 0);
+	while ((status = chan_decode(decoder)) == 0)
+		;
 
 	printf("Received non-zero status from chan: %d.\n", status);
 }
 
-void send_command_status(const motion_command& command, command_status_e status) {
-	motionid motion_status = {
-		.status = (int8_t)status
-	};
+void send_command_status(const motion_command &command, command_status_e status) {
+	motionid motion_status = {.status = (int8_t)status};
 	memcpy(motion_status.id, command.motion.linear.motion_id, 16);
 
 	chan_encode_motionid(encoder, &motion_status);
-} 
+	printf("Sent status\n");
+}
