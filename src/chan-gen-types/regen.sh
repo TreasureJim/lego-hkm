@@ -8,7 +8,7 @@ found_files=false
 for file in defs/*.jl; do
     if [ -f "$file" ]; then
         $codegen --lc -d $1/gen_c $file
-        $codegen -l jlt -d $1/juliet-server/src $file
+        $codegen -l jlt -d $1/juliet-server/src/gen $file
         found_files=true
     fi
 done
