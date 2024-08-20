@@ -1,16 +1,19 @@
 #!/bin/sh
 
-dest="gen_c/"
-codegen="../../libs/chan/compiler/JuliaCompiler/generate_types.jl --lc -d $dest"
+compiler="../../libs/chan/compiler/JuliaCompiler/generate_types.jl"
+codegen="julia $compiler"  # Assuming Julia is the interpreter for the .jl script
 
-mkdir -p $dest
+found_files=false
 
 for file in defs/*.jl; do
-    # Check if the file exists (handles case where there are no .jl files)
     if [ -f "$file" ]; then
-	$codegen $file
-    else
-        echo "No .jl files found in $directory"
-        exit 1
+        $codegen --lc -d $1/gen_c $file
+        $codegen -l jlt -d $1/juliet-server/src/gen $file
+        found_files=true
     fi
 done
+
+if [ "$found_files" = false ]; then
+    echo "No .jl files found in defs/"
+    exit 1
+fi

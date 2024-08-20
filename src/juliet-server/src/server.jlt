@@ -24,10 +24,17 @@ function robot_decoder(dec::Decoder)
 
 		if motion.status == -1
 			throw(MotionError(motion.id))
+		elseif motion.status == 0
+			print("Motion in-progress: ")
+			println(motion.id)
 		elseif motion.status == 1
 			print("Motion finished: ")
 			println(motion.id)
 			notify(command_completed)
+		else
+			print("Motion unknown status: ")
+			println(motion.id)
+			error("Could not read motion status")
 		end
 	end
 end
@@ -38,7 +45,7 @@ struct ServerInfo
 end
 
 function start_server(port::UInt16)::ServerInfo
-	var server = listen(port)
+	var server = listen(port, reuseaddr = true)
 	print("Listening on ")
 	println(port)
 

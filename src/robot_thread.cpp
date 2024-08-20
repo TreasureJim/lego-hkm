@@ -7,8 +7,6 @@
 #include <optional>
 #include <stdio.h>
 
-Robot robot;
-
 std::optional<motion_command> previous_command;
 motion_command current_command;
 std::optional<motion_command> next_command;
@@ -30,7 +28,7 @@ void get_commands() {
 
 Eigen::Vector3d robtarget_to_vector(robtarget &r) { return Eigen::Vector3d(r.x, r.y, r.z); }
 
-bool execute_command() {
+bool execute_command(Robot& robot) {
 	auto motion = &current_command.motion;
 
 	switch (current_command.type) {
@@ -69,6 +67,7 @@ bool execute_command() {
 }
 
 void robot_thread_func() {
+	Robot robot;
 	if (robot.error) {
 		fprintf(stderr, "[ERROR] Could not initialise robot.\n");
 		exit(EXIT_FAILURE);
@@ -89,9 +88,12 @@ void robot_thread_func() {
 			}
 		}
 
-		if (!execute_command()) {
+		if (!execute_command(robot)) {
+			send_command_status(current_command, CMD_FAILED);
 			return;
 		}
+		send_command_status(current_command, CMD_COMPLETED);
+
 		previous_command = current_command;
 	}
 }

@@ -4,6 +4,7 @@ set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
+  ${SOURCE_DIR}/chan-gen-types/gen_c
 )
 
 add_executable(custom_pathfinding_test 
@@ -36,4 +37,37 @@ set_target_properties(custom_pathfinding_vis_test PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN YES
+)
+
+# Test juliet communication queue
+add_executable(juliet_comms_test
+    ${SOURCE_DIR}/juliet_comms.cpp
+    ${SOURCE_DIR}/main.cpp
+    julia_communication_test.cpp
+)
+target_link_libraries(juliet_comms_test PUBLIC 
+chan-static
+chan-comms
+)
+set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
+target_include_directories(juliet_comms_test PUBLIC
+    ${LOCAL_LIBS_DIR}/chan/include
+    ${CMAKE_BINARY_DIR}/gen_c
+
+    ${PROJECT_SOURCE_DIR}/include
+)
+
+add_executable(juliet_comms_server
+  julia_comm_server_test.cpp
+)
+target_link_libraries(juliet_comms_server PUBLIC 
+chan-static
+chan-comms
+)
+set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
+target_include_directories(juliet_comms_server PUBLIC
+    ${LOCAL_LIBS_DIR}/chan/include
+    ${CMAKE_BINARY_DIR}/gen_c
+
+    ${PROJECT_SOURCE_DIR}/include
 )
