@@ -1,6 +1,7 @@
 #include "juliet_comms.hpp"
 #include "robot.hpp"
 #include <arpa/inet.h>
+#include <asm-generic/socket.h>
 #include <cstdio>
 #include <cstdlib>
 #include <netinet/in.h>
@@ -34,6 +35,11 @@ int connect_to_server(char **argv) {
 	}
 
 	int vis_socket = socket(AF_INET, SOCK_STREAM, 0);
+	if (vis_socket < 0) {
+		perror("[ERROR] Creating socket");
+		return -1;
+	}
+
 	if (connect(vis_socket, (struct sockaddr *)&vis_addr, sizeof(vis_addr))) {
 		fprintf(stderr, "[ERROR] Couldn't connect to juliet on %s:%s.\n", argv[1], argv[2]);
 		return -1;
