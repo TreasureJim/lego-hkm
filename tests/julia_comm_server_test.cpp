@@ -19,17 +19,21 @@ extern "C" {
 
 using namespace std::chrono_literals;
 
+void print_hex(const char *data, size_t length) {
+	std::stringstream ss;
+	ss << std::hex << std::setfill('0');
+	for (size_t i = 0; i < length; ++i) {
+		ss << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(data[i]));
+	}
+	std::cout << ss.str();
+}
+
 void print_motionid(motionid &motion) {
-	std::cout << "Motion: " << motion.id << " status: " << motion.status << std::endl;
+	std::cout << "Motion: ";
+	print_hex((char*)&motion.id, sizeof(motion.id));
+	std::cout << " status: " << (int)motion.status << std::endl;
 }
-void printHex(const char* data, size_t length) {
-    std::stringstream ss;
-    ss << std::hex << std::setfill('0');
-    for (size_t i = 0; i < length; ++i) {
-        ss << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(data[i])) << " ";
-    }
-    std::cout << ss.str() << std::endl;
-}
+
 char ctx[] = "someshi";
 
 int main(int argc, char *argv[]) {
@@ -111,24 +115,16 @@ int main(int argc, char *argv[]) {
 		ctx);
 
 	movelinear move;
-	memset(&move, 0x12, sizeof(move));
+	memset(&move, 0x12, sizeof(move.motion_id));
 
 	printf("Sending command.\n");
 	encode_movelinear(encoder, &move);
-
-	ssize_t b_read;
-	char buf[1024];
-	while((b_read = read(robot_socket, buf, sizeof(buf))) > 0)
-		printHex(buf, b_read);
-
-	fflush(stdout);
-
-	exit(0);
 
 	if (chan_decode(decoder)) {
 		printf("Decoding error.\n");
 	}
 
+	close(server_sock);
 	printf("Ended decoding.\n");
 
 	return 0;

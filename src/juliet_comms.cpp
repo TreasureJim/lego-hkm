@@ -4,6 +4,8 @@
 #include <cstring>
 #include <mutex>
 #include <queue>
+#include <stdio.h>
+#include <sys/socket.h>
 
 #include "juliet_comms.hpp"
 
@@ -49,7 +51,10 @@ struct chan_encoder *encoder = nullptr;
 struct chan_decoder *decoder = nullptr;
 char decoder_ctx[] = "decoder context";
 
+int socket_fd;
 void juliet_communication(int juliet_socket) {
+	socket_fd = juliet_socket;
+
 	auto j_writer = fd_writer_new(juliet_socket);
 	auto j_reader = fd_reader_new(juliet_socket);
 	encoder = chan_encoder_new(j_writer);
@@ -77,6 +82,11 @@ void send_command_status(const motion_command &command, command_status_e status)
 	motionid motion_status = {.status = (int8_t)status};
 	memcpy(motion_status.id, command.motion.linear.motion_id, 16);
 
-	chan_encode_motionid(encoder, &motion_status);
+	printf("Sending status\n");
+	int result = encode_motionid(encoder, &motion_status);
+	if (result < 0) {
+		fprintf(stderr, "[ERROR] sending motiondid. Status: %d.\n", result);
+	}
+
 	printf("Sent status\n");
 }
