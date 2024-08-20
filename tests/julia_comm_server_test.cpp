@@ -44,14 +44,20 @@ int main(int argc, char *argv[]) {
 
 	// open stream oriented socket with internet address
 	// also keep track of the socket descriptor
-	int serverSd = socket(AF_INET, SOCK_STREAM, 0);
-	if (serverSd < 0) {
+	int server_sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (server_sock < 0) {
 		std::cerr << "Error establishing the server socket" << std::endl;
-		exit(0);
+		exit(1);
+	}
+
+	int opt = 1;
+	if (setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
+		perror("[ERROR] Setting SO_REUSEADDR");
+		exit(1);
 	}
 
 	// bind the socket to its local address
-	int bindStatus = bind(serverSd, (struct sockaddr *)&servAddr, sizeof(servAddr));
+	int bindStatus = bind(server_sock, (struct sockaddr *)&servAddr, sizeof(servAddr));
 	if (bindStatus < 0) {
 		std::cerr << "Error binding socket to local address. status: " << bindStatus << std::endl;
 		perror("port binding failed");
@@ -60,7 +66,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "Waiting for a client to connect..." << std::endl;
 
 	// listen for up to 5 requests at a time
-	listen(serverSd, 5);
+	listen(server_sock, 1);
 
 	// receive a request from client using accept
 	// we need a new address to connect with the client
@@ -68,7 +74,7 @@ int main(int argc, char *argv[]) {
 	socklen_t newSockAddrSize = sizeof(newSockAddr);
 	// accept, create a new socket descriptor to
 	// handle the new connection with client
-	int robot_socket = accept(serverSd, (sockaddr *)&newSockAddr, &newSockAddrSize);
+	int robot_socket = accept(server_sock, (sockaddr *)&newSockAddr, &newSockAddrSize);
 	if (robot_socket < 0) {
 		std::cerr << "Error accepting request from client!" << std::endl;
 		exit(1);
