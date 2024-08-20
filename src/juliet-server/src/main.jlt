@@ -25,6 +25,5 @@ function main()
         println(ae.message)
     end
 
-
 	stop_server(serverinfo.server)
 end

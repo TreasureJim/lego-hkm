@@ -45,7 +45,7 @@ struct ServerInfo
 end
 
 function start_server(port::UInt16)::ServerInfo
-	var server = listen(port)
+	var server = listen(port, reuseaddr = true)
 	print("Listening on ")
 	println(port)
 
