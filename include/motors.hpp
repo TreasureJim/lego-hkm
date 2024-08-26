@@ -10,6 +10,8 @@ extern double current_joint_angles[4];
 bool motor_setup();
 void motor_shutdown();
 
+double joint_angle_to_libservo_value(double joint_angle);
+
 /// This is used at the startup to allow the robot to go to default position and find its position of motors
 /// Should **NOT** be used if motors are not in the default angles
 void motor_reset_angle();

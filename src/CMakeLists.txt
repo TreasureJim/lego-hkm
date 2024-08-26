@@ -1,4 +1,5 @@
 FILE(COPY juliet-server DESTINATION ${CMAKE_BINARY_DIR})
+FILE(REMOVE ${CMAKE_BINARY_DIR}/juliet-server/src/gen)
 
 add_subdirectory(chan-gen-types)
 
@@ -27,9 +28,7 @@ else()
     list(APPEND SOURCE_FILES dev_main.cpp)
 endif()
 
-add_executable(LegoHKM ${SOURCE_FILES})
-
-target_include_directories(LegoHKM PUBLIC
+include_directories(
     ${Boost_INCLUDE_DIRS}
     ${OMPL_INCLUDE_DIRS}
     ${LOCAL_LIBS_DIR}/ompl/src
@@ -41,6 +40,9 @@ target_include_directories(LegoHKM PUBLIC
     ${PROJECT_SOURCE_DIR}/include
 )
 
+# LegoHKM
+
+add_executable(LegoHKM ${SOURCE_FILES})
 target_link_libraries(LegoHKM PUBLIC
     Eigen3::Eigen
     ${Boost_LIBRARIES}
@@ -52,3 +54,11 @@ target_link_libraries(LegoHKM PUBLIC
 )
 
 target_compile_features(LegoHKM PRIVATE cxx_std_17)
+
+# Motor Control
+
+add_executable(MotorControl motorcontrol.cpp motors.cpp mark2_0_fixed.cpp)
+target_link_libraries(MotorControl PUBLIC
+    ${Boost_LIBRARIES}
+    robotics_cape
+)
