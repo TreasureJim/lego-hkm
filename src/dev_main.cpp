@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 #include "kinematics.h"
-#include "mark2_0_fixed.hpp"
+#include "lego_model.hpp"
 
 extern "C" {
 #include "chan/encoder.h"
@@ -27,20 +27,20 @@ std::default_random_engine re(std::random_device().entropy());
 hkmpos random_hkm_pos(void) {
 	hkmpos pos;
 
-	std::uniform_real_distribution<double> unif1(mark2_0_fixed.joint_lims[0][0] + 0.0001,
-	                                             mark2_0_fixed.joint_lims[0][1]);
+	std::uniform_real_distribution<double> unif1(lego_model.joint_lims[0][0] + 0.0001,
+	                                             lego_model.joint_lims[0][1]);
 	pos.j1 = unif1(re) * RADIAN_TO_DEGREE;
 
-	std::uniform_real_distribution<double> unif2(mark2_0_fixed.joint_lims[1][0] + 0.0001,
-	                                             mark2_0_fixed.joint_lims[1][1]);
+	std::uniform_real_distribution<double> unif2(lego_model.joint_lims[1][0] + 0.0001,
+	                                             lego_model.joint_lims[1][1]);
 	pos.j2 = unif2(re) * RADIAN_TO_DEGREE;
 
-	std::uniform_real_distribution<double> unif3(mark2_0_fixed.joint_lims[2][0] + 0.0001,
-	                                             mark2_0_fixed.joint_lims[2][1]);
+	std::uniform_real_distribution<double> unif3(lego_model.joint_lims[2][0] + 0.0001,
+	                                             lego_model.joint_lims[2][1]);
 	pos.j3 = unif3(re) * RADIAN_TO_DEGREE;
 
-	std::uniform_real_distribution<double> unif4(mark2_0_fixed.joint_lims[3][0] + 0.0001,
-	                                             mark2_0_fixed.joint_lims[3][1]);
+	std::uniform_real_distribution<double> unif4(lego_model.joint_lims[3][0] + 0.0001,
+	                                             lego_model.joint_lims[3][1]);
 	pos.j4 = unif4(re) * RADIAN_TO_DEGREE;
 
 	return pos;
@@ -49,14 +49,14 @@ hkmpos random_hkm_pos(void) {
 Eigen::Vector3d random_valid_cart_pos(void) {
 	double joint_angles[4];
 	for (int i = 0; i < 4; i++) {
-		std::uniform_real_distribution<double> unif(mark2_0_fixed.joint_lims[i][0] + 0.0001,
-		                                            mark2_0_fixed.joint_lims[i][1]);
+		std::uniform_real_distribution<double> unif(lego_model.joint_lims[i][0] + 0.0001,
+		                                            lego_model.joint_lims[i][1]);
 		joint_angles[i] = unif(re);
 	}
 
 	double matrix[4][4];
 	double angle = 0.0;
-	fwd(&mark2_0_fixed, joint_angles, matrix, &angle);
+	fwd(&lego_model, joint_angles, matrix, &angle);
 
 	return Eigen::Vector3d(matrix[0][3], matrix[1][3], matrix[2][3]);
 }

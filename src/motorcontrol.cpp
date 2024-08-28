@@ -1,4 +1,4 @@
-#include "mark2_0_fixed.hpp"
+#include "lego_model.hpp"
 #include "rc/dsm.h"
 #include "rc/servo.h"
 #include "rc/time.h"

@@ -1,6 +1,6 @@
 #include <Eigen/Dense>
 #include <random>
-#include "mark2_0_fixed.hpp"
+#include "lego_model.hpp"
 
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
 #include <boost/thread/pthread/thread_data.hpp>
@@ -15,7 +15,6 @@
 #define RAD_TO_DEG 57.295779513
 
 #include "kinematics.h"
-#include "mark2_0_fixed.hpp"
 
 std::chrono::system_clock::rep time_since_epoch(){
     static_assert(
@@ -30,15 +29,15 @@ std::default_random_engine re(time_since_epoch());
 Eigen::Vector3d random_valid_cart_pos(void) {
   double joint_angles[4];
   for (int i = 0; i < 4; i++) {
-    std::uniform_real_distribution<double> unif(mark2_0_fixed.joint_lims[i][0] +
+    std::uniform_real_distribution<double> unif(lego_model.joint_lims[i][0] +
                                                     0.0001,
-                                                mark2_0_fixed.joint_lims[i][1]);
+                                                lego_model.joint_lims[i][1]);
     joint_angles[i] = unif(re);
   }
 
   double matrix[4][4];
   double angle = 0.0;
-  fwd(&mark2_0_fixed, joint_angles, matrix, &angle);
+  fwd(&lego_model, joint_angles, matrix, &angle);
 
   return Eigen::Vector3d(matrix[0][3], matrix[1][3], matrix[2][3]);
 }

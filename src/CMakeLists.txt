@@ -4,7 +4,7 @@ FILE(REMOVE ${CMAKE_BINARY_DIR}/juliet-server/src/gen)
 add_subdirectory(chan-gen-types)
 
 set(SOURCE_FILES
-    mark2_0_fixed.cpp
+    lego_model.cpp
     motors.cpp
     robot.cpp
     eigen_kinematics.cpp
@@ -57,7 +57,7 @@ target_compile_features(LegoHKM PRIVATE cxx_std_17)
 
 # Motor Control
 
-add_executable(MotorControl motorcontrol.cpp motors.cpp mark2_0_fixed.cpp)
+add_executable(MotorControl motorcontrol.cpp motors.cpp lego_model.cpp)
 target_link_libraries(MotorControl PUBLIC
     ${Boost_LIBRARIES}
     robotics_cape

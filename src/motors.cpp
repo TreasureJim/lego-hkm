@@ -1,4 +1,4 @@
-#include "mark2_0_fixed.hpp"
+#include "lego_model.hpp"
 #include "rc/adc.h"
 #include "rc/servo.h"
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
@@ -9,8 +9,8 @@
 #include <cstdio>
 #include <cstdlib>
 
-double DEFAULT_JOINT_ANGLES[] = {mark2_0_fixed.joint_lims[0][0] + 0.01, mark2_0_fixed.joint_lims[1][0] + 0.01,
-                                 mark2_0_fixed.joint_lims[2][0] + 0.01, mark2_0_fixed.joint_lims[3][0] + 0.01};
+double DEFAULT_JOINT_ANGLES[] = {lego_model.joint_lims[0][0] + 0.01, lego_model.joint_lims[1][0] + 0.01,
+                                 lego_model.joint_lims[2][0] + 0.01, lego_model.joint_lims[3][0] + 0.01};
 
 double current_joint_angles[4];
 
