@@ -57,10 +57,12 @@ void motor_reset_angle() {
 	current_joint_angles[2] = DEFAULT_JOINT_ANGLES[2];
 	current_joint_angles[3] = DEFAULT_JOINT_ANGLES[3];
 
-	rc_servo_send_pulse_normalized(1, joint_angle_to_libservo_value(current_joint_angles[0]));
-	rc_servo_send_pulse_normalized(2, joint_angle_to_libservo_value(current_joint_angles[1]));
-	rc_servo_send_pulse_normalized(3, joint_angle_to_libservo_value(current_joint_angles[2]));
-	rc_servo_send_pulse_normalized(4, joint_angle_to_libservo_value(current_joint_angles[3]));
+	for (int i = 0; i < 50; i++) {
+		rc_servo_send_pulse_normalized(1, joint_angle_to_libservo_value(current_joint_angles[0]));
+		rc_servo_send_pulse_normalized(2, joint_angle_to_libservo_value(current_joint_angles[1]));
+		rc_servo_send_pulse_normalized(3, joint_angle_to_libservo_value(current_joint_angles[2]));
+		rc_servo_send_pulse_normalized(4, joint_angle_to_libservo_value(current_joint_angles[3]));
+	}
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 }

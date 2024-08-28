@@ -23,6 +23,8 @@ Eigen::Vector3d joint_angle_to_cart_loc(const double angles[4]) {
 int Robot::robot_setup() {
 	if (!motor_setup())
 		return false;
+
+	printf("Setting motors to default positions.\n");
 	motor_reset_angle();
 	return true;
 }

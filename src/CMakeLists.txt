@@ -28,6 +28,9 @@ else()
     list(APPEND SOURCE_FILES dev_main.cpp)
 endif()
 
+# LegoHKM
+add_executable(LegoHKM ${SOURCE_FILES})
+
 include_directories(
     ${Boost_INCLUDE_DIRS}
     ${OMPL_INCLUDE_DIRS}
@@ -40,9 +43,6 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include
 )
 
-# LegoHKM
-
-add_executable(LegoHKM ${SOURCE_FILES})
 target_link_libraries(LegoHKM PUBLIC
     Eigen3::Eigen
     ${Boost_LIBRARIES}
