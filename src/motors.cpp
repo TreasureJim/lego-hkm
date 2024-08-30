@@ -1,6 +1,7 @@
 #include "lego_model.hpp"
 #include "rc/adc.h"
 #include "rc/servo.h"
+#include "rc/time.h"
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/detail/thread.hpp>
@@ -49,7 +50,9 @@ void motor_shutdown() {
 		fprintf(stderr, "ERROR: could not disable 6V power rail.\n");
 }
 
-double joint_angle_to_libservo_value(double joint_angle) { return joint_angle / M_PI; }
+double joint_angle_to_libservo_value(double joint_angle, uint8_t motor) {
+	return (joint_angle - lego_model.joint_lims[motor][0]) / fabs(lego_model.joint_lims[motor][0]) * 3.0 - 1.5;
+}
 
 void motor_reset_angle() {
 	current_joint_angles[0] = DEFAULT_JOINT_ANGLES[0];
@@ -58,10 +61,11 @@ void motor_reset_angle() {
 	current_joint_angles[3] = DEFAULT_JOINT_ANGLES[3];
 
 	for (int i = 0; i < 50; i++) {
-		rc_servo_send_pulse_normalized(1, joint_angle_to_libservo_value(current_joint_angles[0]));
-		rc_servo_send_pulse_normalized(2, joint_angle_to_libservo_value(current_joint_angles[1]));
-		rc_servo_send_pulse_normalized(3, joint_angle_to_libservo_value(current_joint_angles[2]));
-		rc_servo_send_pulse_normalized(4, joint_angle_to_libservo_value(current_joint_angles[3]));
+		rc_servo_send_pulse_normalized(1, joint_angle_to_libservo_value(current_joint_angles[0], 0));
+		rc_servo_send_pulse_normalized(2, joint_angle_to_libservo_value(current_joint_angles[1], 1));
+		rc_servo_send_pulse_normalized(3, joint_angle_to_libservo_value(current_joint_angles[2], 2));
+		rc_servo_send_pulse_normalized(4, joint_angle_to_libservo_value(current_joint_angles[3], 3));
+		rc_usleep(1e6 / 50);
 	}
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(10));
@@ -82,7 +86,7 @@ void motor_transition_angle(double start_angle[4], double goal_angle[4], uint8_t
 	for (int n = 0; n < largest_angle / step_size; n++) {
 		for (int j = 0; j < 4; j++) {
 			double new_angle = start_angle[j] + (goal_angle[j] - start_angle[j]) / num_steps * n;
-			auto translated_angle = joint_angle_to_libservo_value(new_angle);
+			auto translated_angle = joint_angle_to_libservo_value(new_angle, j);
 			if (rc_servo_send_pulse_normalized(j + 1, translated_angle))
 				fprintf(stderr, "[ERROR] could not move motor %d to angle %f\n", j + 1, translated_angle);
 		}
@@ -90,7 +94,7 @@ void motor_transition_angle(double start_angle[4], double goal_angle[4], uint8_t
 	}
 
 	for (int j = 0; j < 4; j++) {
-		rc_servo_send_pulse_normalized(j + 1, joint_angle_to_libservo_value(goal_angle[j]));
+		rc_servo_send_pulse_normalized(j + 1, joint_angle_to_libservo_value(goal_angle[j], j));
 	}
 	boost::this_thread::sleep(boost::posix_time::milliseconds(delay));
 

@@ -1,6 +1,7 @@
 #include "juliet_comms.hpp"
 #include <cstdio>
 #include <thread>
+#include <client.hpp>
 
 using namespace std::chrono_literals;
 
@@ -41,4 +42,21 @@ void robot_thread_func() {
 		print_command(stdout, command);
 		send_command_status(command, CMD_COMPLETED);
 	}
+}
+
+int main(int argc, char *argv[]) {
+	if (argc < 3) {
+		fprintf(stderr, "Usage: %s IPv4_addr port\n", argv[0]);
+		exit(EXIT_FAILURE);
+	}
+
+	int jl_socket;
+	if ((jl_socket = connect_to_server(argv[1], argv[2])) < 0)
+		exit(1);
+
+	std::thread robot_thread(robot_thread_func);
+
+	juliet_communication(jl_socket);
+
+	return 0;
 }

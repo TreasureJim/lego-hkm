@@ -42,7 +42,7 @@ set_target_properties(custom_pathfinding_vis_test PROPERTIES
 # Test juliet communication queue
 add_executable(juliet_comms_test
     ${SOURCE_DIR}/juliet_comms.cpp
-    ${SOURCE_DIR}/main.cpp
+    ${SOURCE_DIR}/client.cpp
     julia_communication_test.cpp
 )
 target_link_libraries(juliet_comms_test PUBLIC 
