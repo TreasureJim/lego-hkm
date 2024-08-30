@@ -26,8 +26,6 @@ void get_commands() {
 		next_command = motion_queue.front();
 }
 
-Eigen::Vector3d robtarget_to_vector(robtarget &r) { return Eigen::Vector3d(r.x, r.y, r.z); }
-
 bool execute_command(Robot& robot) {
 	auto motion = &current_command.motion;
 

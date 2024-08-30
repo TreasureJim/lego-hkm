@@ -9,6 +9,7 @@ set(SOURCE_FILES
     eigen_kinematics.cpp
     juliet_comms.cpp
     robot_thread.cpp
+    trajectory_planner.cpp
 )
 
 set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
