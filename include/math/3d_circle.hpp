@@ -1,7 +1,7 @@
 #pragma once
 
 #include "kinematics.h"
-#include "mark2_0_fixed.hpp"
+#include "lego_model.hpp"
 #include <Eigen/Geometry>
 #include <Eigen/src/Core/Matrix.h>
 #include <array>
@@ -144,7 +144,7 @@ class Circle_3D {
 		for (float p = 0.0; p <= 1.0; p += 0.05) {
 			auto vec = this->get_arc_coord(p);
 			double pos[3] = {vec.x(), vec.y(), vec.z()};
-			if (inv(&mark2_0_fixed, pos, 0.0, NULL) < 0) {
+			if (inv(&lego_model, pos, 0.0, NULL) < 0) {
 				return false;
 			}
 		}

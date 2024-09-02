@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.3)
 
 project(LegoHKM VERSION 0.1)
 
@@ -35,7 +35,7 @@ else()
     add_compile_options(-D DEV)
 endif()
 
-find_package(Boost REQUIRED COMPONENTS thread timer chrono serialization filesystem system program_options)
+find_package(Boost 1.67.0 REQUIRED COMPONENTS thread timer chrono serialization filesystem system program_options)
 if (Boost_FOUND)
     message(STATUS "Found boost: ${Boost_DIR}")
     message(STATUS "Boost libs: ${Boost_LIBRARIES}")

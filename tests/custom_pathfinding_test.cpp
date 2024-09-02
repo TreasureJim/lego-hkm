@@ -4,7 +4,7 @@
 #include <Eigen/src/Core/Matrix.h>
 #include <cassert>
 #include <iostream>
-#include <mark2_0_fixed.hpp>
+#include <lego_model.hpp>
 #include "test_helpers.hpp"
 
 #define FAIL 1

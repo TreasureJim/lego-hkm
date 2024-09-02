@@ -11,7 +11,7 @@ add_executable(custom_pathfinding_test
     custom_pathfinding_test.cpp
     ${SOURCE_DIR}/eigen_kinematics.cpp
     ${SOURCE_DIR}/custom_pathfinding.cpp
-    ${SOURCE_DIR}/mark2_0_fixed.cpp
+    ${SOURCE_DIR}/lego_model.cpp
     ${SOURCE_DIR}/test_helpers.cpp
 )
 
@@ -27,7 +27,7 @@ add_library(custom_pathfinding_vis_test SHARED
     custom_pathfinding_vis_test.cpp
     ${SOURCE_DIR}/eigen_kinematics.cpp
     ${SOURCE_DIR}/custom_pathfinding.cpp
-    ${SOURCE_DIR}/mark2_0_fixed.cpp
+    ${SOURCE_DIR}/lego_model.cpp
     ${SOURCE_DIR}/test_helpers.cpp
 )
 
@@ -42,7 +42,7 @@ set_target_properties(custom_pathfinding_vis_test PROPERTIES
 # Test juliet communication queue
 add_executable(juliet_comms_test
     ${SOURCE_DIR}/juliet_comms.cpp
-    ${SOURCE_DIR}/main.cpp
+    ${SOURCE_DIR}/client.cpp
     julia_communication_test.cpp
 )
 target_link_libraries(juliet_comms_test PUBLIC 

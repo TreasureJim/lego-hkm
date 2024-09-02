@@ -1,15 +1,17 @@
 FILE(COPY juliet-server DESTINATION ${CMAKE_BINARY_DIR})
+FILE(REMOVE ${CMAKE_BINARY_DIR}/juliet-server/src/gen)
 
 add_subdirectory(chan-gen-types)
 
 set(SOURCE_FILES
-    mark2_0_fixed.cpp
+    lego_model.cpp
     motors.cpp
     robot.cpp
     eigen_kinematics.cpp
     juliet_comms.cpp
     robot_thread.cpp
     trajectory_planner.cpp
+    client.cpp
 )
 
 set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
@@ -28,9 +30,10 @@ else()
     list(APPEND SOURCE_FILES dev_main.cpp)
 endif()
 
+# LegoHKM
 add_executable(LegoHKM ${SOURCE_FILES})
 
-target_include_directories(LegoHKM PUBLIC
+include_directories(
     ${Boost_INCLUDE_DIRS}
     ${OMPL_INCLUDE_DIRS}
     ${LOCAL_LIBS_DIR}/ompl/src
@@ -53,3 +56,11 @@ target_link_libraries(LegoHKM PUBLIC
 )
 
 target_compile_features(LegoHKM PRIVATE cxx_std_17)
+
+# Motor Control
+
+add_executable(MotorControl motorcontrol.cpp motors.cpp lego_model.cpp)
+target_link_libraries(MotorControl PUBLIC
+    ${Boost_LIBRARIES}
+    robotics_cape
+)

@@ -1,5 +1,5 @@
 #include "kinematics.h"
-#include "mark2_0_fixed.hpp"
+#include "lego_model.hpp"
 #include <Eigen/Dense>
 #include <array>
 #include <optional>
@@ -16,7 +16,7 @@ std::optional<std::array<double, 4>> inverse(Eigen::Vector3d pos) {
 	std::array<double, 4> joints;
 	auto pos_arr = pos_to_array(pos);
 
-	if (inv(&mark2_0_fixed, pos_arr.data(), 0.0, joints.data()) < 0)
+	if (inv(&lego_model, pos_arr.data(), 0.0, joints.data()) < 0)
 		return std::nullopt;
 
 	return joints;

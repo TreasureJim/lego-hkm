@@ -15,7 +15,7 @@
 Eigen::Vector3d joint_angle_to_cart_loc(const double angles[4]) {
 	double mat[4][4];
 	double orient;
-	fwd(&mark2_0_fixed, angles, mat, &orient);
+	fwd(&lego_model, angles, mat, &orient);
 
 	return Eigen::Vector3d(mat[0][3], mat[1][3], mat[2][3]);
 }
@@ -23,13 +23,15 @@ Eigen::Vector3d joint_angle_to_cart_loc(const double angles[4]) {
 int Robot::robot_setup() {
 	if (!motor_setup())
 		return false;
+
+	printf("Setting motors to default positions.\n");
 	motor_reset_angle();
 	return true;
 }
 
 int Robot::go_to(Eigen::Vector3d pos) {
 	double goal_servo_angles[4];
-	if (cart_to_drive(&mark2_0_fixed, pos.data(), 0.0, goal_servo_angles) < 0) {
+	if (cart_to_drive(&lego_model, pos.data(), 0.0, goal_servo_angles) < 0) {
 		fprintf(stderr, "ERROR: generating motor position for x: %f, y: %f, z: %f.\n", pos.x(), pos.y(), pos.z());
 		return 0;
 	}
@@ -59,7 +61,7 @@ int Robot::move_linear(Eigen::Vector3d goal_pos) {
 
 	for (const auto &coord : path.value()) {
 		double servo_angles[4];
-		if (cart_to_drive(&mark2_0_fixed, coord.data(), 0.0, servo_angles) < 0) {
+		if (cart_to_drive(&lego_model, coord.data(), 0.0, servo_angles) < 0) {
 			fprintf(stderr, "Error generating motor position for x: %f, y: %f, z: %f.\n", coord[0], coord[1], coord[2]);
 			continue;
 		}
@@ -104,11 +106,11 @@ int Robot::move_joint(double joints[4]) {
 	// checking if valid angles
 	double matrix[4][4];
 	double orient;
-	fwd(&mark2_0_fixed, joints, matrix, &orient);
+	fwd(&lego_model, joints, matrix, &orient);
 	double pos[3];
 	matrix_to_pos(matrix, pos);
 	double q[4];
-	if (cart_to_drive(&mark2_0_fixed, pos, 0, q) < 0) {
+	if (cart_to_drive(&lego_model, pos, 0, q) < 0) {
 		return 0;
 	}
 

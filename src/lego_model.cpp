@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include "kinematics.h"
 
-struct agile_pkm_model mark2_0_fixed = {
+struct agile_pkm_model lego_model = {
 	.bh = NULL,
 	.L0 = 0.64275, // height from floor to bottom part of elbow // UNFINISHED
 	.L1 = 0.945, // length from servo 1 to end of elbow // UNFINISHED
