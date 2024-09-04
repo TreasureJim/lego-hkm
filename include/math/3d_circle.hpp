@@ -140,6 +140,18 @@ class Circle_3D {
 		return this->get_circle_coord(this->arc_start_angle + (arc_end_angle - arc_start_angle) * p);
 	}
 
+	bool check_circle_valid_path() {
+		for (float p = 0.0; p <= 1.0; p += 0.05) {
+			auto vec = this->get_circle_coord(p);
+			double pos[3] = {vec.x(), vec.y(), vec.z()};
+			if (inv(&lego_model, pos, 0.0, NULL) < 0) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	bool check_arc_valid_path() {
 		for (float p = 0.0; p <= 1.0; p += 0.05) {
 			auto vec = this->get_arc_coord(p);
@@ -151,6 +163,4 @@ class Circle_3D {
 
 		return true;
 	}
-
-	explicit operator bool() { return this->check_arc_valid_path(); }
 };
