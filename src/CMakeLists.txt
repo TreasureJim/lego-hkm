@@ -4,6 +4,7 @@ FILE(REMOVE ${CMAKE_BINARY_DIR}/juliet-server/src/gen)
 add_subdirectory(chan-gen-types)
 
 set(SOURCE_FILES
+    IMotion.cpp
     lego_model.cpp
     motors.cpp
     robot.cpp
