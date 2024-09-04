@@ -52,56 +52,6 @@ Robot::~Robot() { robot_shutdown(); }
 
 Eigen::Vector3d Robot::get_current_cart_loc() { return joint_angle_to_cart_loc(current_joint_angles); }
 
-int Robot::move_linear(Eigen::Vector3d goal_pos) {
-	auto path = this->pathfinding.find_path(this->get_current_cart_loc(), goal_pos);
-	if (!path.has_value()) {
-		fprintf(stderr, "ERROR: Could not plan path.\n");
-		return 0;
-	}
-
-	for (const auto &coord : path.value()) {
-		double servo_angles[4];
-		if (cart_to_drive(&lego_model, coord.data(), 0.0, servo_angles) < 0) {
-			fprintf(stderr, "Error generating motor position for x: %f, y: %f, z: %f.\n", coord[0], coord[1], coord[2]);
-			continue;
-		}
-
-		// printf("Cart: x: %f, y: %f, z: %f. Drive positions: %f, %f, %f\n", coord[0], coord[1], coord[2], servo_angles[0] * RAD_TO_DEG, servo_angles[1] * RAD_TO_DEG, servo_angles[2] * RAD_TO_DEG);
-		printf("Cart: x: %f, y: %f, z: %f. Drive positions: %f, %f, %f\n", coord[0], coord[1], coord[2], servo_angles[0], servo_angles[1], servo_angles[2]);
-		this->go_to(coord);
-	}
-
-	return 0;
-}
-
-int Robot::move_arc(Eigen::Vector3d v2, Eigen::Vector3d v3) {
-	Eigen::Vector3d v1 = this->get_current_cart_loc();
-
-	Circle_3D circle(v1, v2, v3);
-	if (!circle)
-		return 0;
-
-	for (float p = 0.0; p <= 1.0; p += 0.05) {
-		this->go_to(circle.get_arc_coord(p));
-	}
-
-	return 1;
-}
-
-int Robot::move_circular(Eigen::Vector3d v2, Eigen::Vector3d v3) {
-	Eigen::Vector3d v1 = this->get_current_cart_loc();
-
-	Circle_3D circle(v1, v2, v3);
-	if (!circle)
-		return 0;
-
-	for (float a = 0.0; a <= 2 * M_PI; a += 0.05) {
-		this->go_to(circle.get_arc_coord(a));
-	}
-
-	return 1;
-}
-
 int Robot::move_joint(double joints[4]) {
 	// checking if valid angles
 	double matrix[4][4];
@@ -117,4 +67,12 @@ int Robot::move_joint(double joints[4]) {
 	// move motors
 	motor_transition_angle(current_joint_angles, joints);
 	return 1;
+}
+
+int Robot::execute_motion(IMotion& motion, float interval_size) {
+	if (!motion.is_valid()) return 1;
+
+	for(float p = 0.0; p <= 1.0; p += 0.05) {
+		this->go_to(motion.GetPoint(p));
+	}
 }

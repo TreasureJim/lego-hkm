@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IMotion.hpp"
 #include "pathfinding.hpp"
 #include <Eigen/Dense>
 
@@ -21,10 +22,9 @@ public:
     ~Robot();
 
     Eigen::Vector3d get_current_cart_loc();
-    int move_linear(Eigen::Vector3d goal_pos);
-    int move_arc(Eigen::Vector3d v2, Eigen::Vector3d v3);
-    int move_circular(Eigen::Vector3d v2, Eigen::Vector3d v3);
     int move_joint(double joints[4]);
+
+    int execute_motion(IMotion& motion, float interval_size = 0.05);
 };
 
 void robot_thread_func();
