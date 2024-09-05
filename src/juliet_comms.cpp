@@ -1,3 +1,4 @@
+#include "juliet_comms.hpp"
 #include <condition_variable>
 #include <cstdint>
 #include <cstdio>
@@ -6,8 +7,6 @@
 #include <queue>
 #include <stdio.h>
 #include <sys/socket.h>
-
-#include "juliet_comms.hpp"
 
 extern "C" {
 #include "chan/decoder.h"

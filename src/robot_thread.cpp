@@ -28,42 +28,39 @@ void get_commands() {
 }
 
 bool execute_command(Robot &robot) {
-	auto motion = &current_command.motion;
+	auto motion_s = &current_command.motion;
 
-	if (current_command.type == MOVE_JOINT) {
-		double joints[4] = {motion->joint.target.j1, motion->joint.target.j2, motion->joint.target.j3,
-		                    motion->joint.target.j4};
-		robot.move_joint(joints);
-	} else {
-		IMotion* imotion = nullptr;
-		switch (current_command.type) {
-		case MOVE_POS: {
-			motion = new MotionPath();
-			break;
-		}
-		case MOVE_LIN: {
-			robot.move_linear(robtarget_to_vector(current_command.motion.linear.target));
-			break;
-		}
-		case MOVE_ARC: {
-			robot.move_arc(robtarget_to_vector(motion->arc.apos), robtarget_to_vector(motion->arc.target));
-			break;
-		}
-		case MOVE_CIRC: {
-			robot.move_circular(robtarget_to_vector(motion->circular.apos),
-			                    robtarget_to_vector(motion->circular.target));
-			break;
-		}
-		default: {
-			fprintf(stderr, "[ERROR] Unrecognised motion command. ");
-			print_command(stderr, current_command);
-			fprintf(stderr, ".\n");
-			return false;
-		}
-		}
-
-		robot.execute_motion(motion);
+	IMotion *motion = nullptr;
+	switch (current_command.type) {
+	case MOVE_POS: {
+		motion = new MotionPath();
+		break;
 	}
+	case MOVE_LIN: {
+		robot.move_linear(robtarget_to_vector(current_command.motion.linear.target));
+		break;
+	}
+	case MOVE_ARC: {
+		robot.move_arc(robtarget_to_vector(motion_s->arc.apos), robtarget_to_vector(motion_s->arc.target));
+		break;
+	}
+	case MOVE_CIRC: {
+		robot.move_circular(robtarget_to_vector(motion_s->circular.apos),
+		                    robtarget_to_vector(motion_s->circular.target));
+		break;
+	}
+		case MOVE_JOINT: {
+
+		}
+	default: {
+		fprintf(stderr, "[ERROR] Unrecognised motion command. ");
+		print_command(stderr, current_command);
+		fprintf(stderr, ".\n");
+		return false;
+	}
+	}
+
+	robot.execute_motion(motion_s);
 
 	return true;
 }

@@ -7,13 +7,37 @@ extern "C" {
 #include "motion_types.h"
 }
 
+enum motiontype_e {
+	MOVE_POS,
+	MOVE_LIN,
+	MOVE_ARC,
+	MOVE_CIRC,
+	MOVE_JOINT,
+};
+
+union motion_u {
+	movepos pos;
+	movelinear linear;
+	movearc arc;
+	movecircular circular;
+	movejoint joint;
+};
+
+struct motion_command {
+	motiontype_e type;
+	motion_u motion;
+};
+
+
 class IMotion {
   protected:
 	const Eigen::Vector3d origin_pos;
+	const Eigen::Vector3d target_pos;
 
-	IMotion(Eigen::Vector3d origin_pos);
+	IMotion(Eigen::Vector3d origin_pos, Eigen::Vector3d target_pos);
 
   public:
+	static IMotion* motion_com_to_IMotion(Eigen::Vector3d origin_pos, motion_command command);
 	virtual Eigen::Vector3d GetPoint(float t) = 0;
 	virtual bool is_valid() = 0;
 };
@@ -31,14 +55,12 @@ class MotionArc : public IMotion {
 	Circle_3D circle_3d;
 
   public:
-	MotionArc(Eigen::Vector3d origin_pos, movecircular circle);
+	MotionArc(Eigen::Vector3d origin_pos, movearc arc);
 	Eigen::Vector3d GetPoint(float t) override;
 	bool is_valid() override;
 };
 
 class MotionLinear : public IMotion {
-	Eigen::Vector3d target;
-
   public:
 	MotionLinear(Eigen::Vector3d origin_pos, Eigen::Vector3d target);
 	Eigen::Vector3d GetPoint(float t) override;
@@ -54,5 +76,15 @@ class MotionPath : public IMotion {
   public:
 	MotionPath(Eigen::Vector3d origin_pos, Eigen::Vector3d target);
 	Eigen::Vector3d GetPoint(float t) override;
+	bool is_valid() override;
+};
+
+class MotionJoint : public IMotion {
+	std::array<double, 4> angles;
+
+  public:
+	MotionJoint(Eigen::Vector3d origin_pos, movejoint joint_com);
+	Eigen::Vector3d GetPoint(float t) override;
+	std::array<double, 4> get_angles();
 	bool is_valid() override;
 };
