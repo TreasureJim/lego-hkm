@@ -1,8 +1,12 @@
 #include "juliet_comms.hpp"
+#include "IMotion.hpp"
+#include "motors.hpp"
+#include "eigen_kinematics.hpp"
 #include <condition_variable>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <stdio.h>
@@ -17,11 +21,14 @@ extern "C" {
 }
 
 std::mutex motion_queue_mutex;
-std::queue<motion_command> motion_queue;
+std::queue<std::unique_ptr<IMotion>> motion_queue;
 std::condition_variable motion_queue_trigger;
+Eigen::Vector3d last_target_pos;
 
 void push_to_queue(motion_command command) {
-	motion_queue.push(command);
+	IMotion* motion = IMotion::motion_com_to_IMotion(last_target_pos, command);
+	last_target_pos = motion->get_target_pos();
+	motion_queue.push(std::unique_ptr<IMotion>(motion));
 	motion_queue_trigger.notify_one();
 }
 
@@ -51,7 +58,9 @@ struct chan_decoder *decoder = nullptr;
 char decoder_ctx[] = "decoder context";
 
 int socket_fd;
-void juliet_communication(int juliet_socket) {
+void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location) {
+	last_target_pos = initial_location;
+
 	socket_fd = juliet_socket;
 
 	auto j_writer = fd_writer_new(juliet_socket);
@@ -77,9 +86,9 @@ void juliet_communication(int juliet_socket) {
 	printf("Received non-zero status from chan: %d.\n", status);
 }
 
-void send_command_status(const motion_command &command, command_status_e status) {
+void send_command_status(const IMotion &command, command_status_e status) {
 	motionid motion_status = {.status = (int8_t)status};
-	memcpy(motion_status.id, command.motion.linear.motion_id, 16);
+	memcpy(motion_status.id, command.uuid, 16);
 
 	printf("Sending status\n");
 	int result = encode_motionid(encoder, &motion_status);

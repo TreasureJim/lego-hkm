@@ -4,7 +4,7 @@ set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
-  ${SOURCE_DIR}/chan-gen-types/gen_c
+  ${CMAKE_BINARY_DIR}/gen_c
 )
 
 add_executable(custom_pathfinding_test 
@@ -43,16 +43,23 @@ set_target_properties(custom_pathfinding_vis_test PROPERTIES
 add_executable(juliet_comms_test
     ${SOURCE_DIR}/juliet_comms.cpp
     ${SOURCE_DIR}/client.cpp
+    ${SOURCE_DIR}/IMotion.cpp
+    ${SOURCE_DIR}/lego_model.cpp
+    ${SOURCE_DIR}/eigen_kinematics.cpp
+    ${SOURCE_DIR}/custom_pathfinding.cpp
     julia_communication_test.cpp
 )
 target_link_libraries(juliet_comms_test PUBLIC 
 chan-static
 chan-comms
+IK-lib
 )
 set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
 target_include_directories(juliet_comms_test PUBLIC
     ${LOCAL_LIBS_DIR}/chan/include
+    ${LOCAL_LIBS_DIR}/IK-lib
     ${CMAKE_BINARY_DIR}/gen_c
+    ${LOCAL_LIBS_DIR}/librobotcontrol/library/include
 
     ${PROJECT_SOURCE_DIR}/include
 )

@@ -1,7 +1,5 @@
 #include "lego_model.hpp"
-#include "rc/adc.h"
-#include "rc/servo.h"
-#include "rc/time.h"
+#include <array>
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/detail/thread.hpp>
@@ -10,10 +8,14 @@
 #include <cstdio>
 #include <cstdlib>
 
-double DEFAULT_JOINT_ANGLES[] = {lego_model.joint_lims[0][0] + 0.01, lego_model.joint_lims[1][0] + 0.01,
-                                 lego_model.joint_lims[2][0] + 0.01, lego_model.joint_lims[3][0] + 0.01};
+extern "C" {
+#include "rc/adc.h"
+#include "rc/servo.h"
+#include "rc/time.h"
+}
 
-double current_joint_angles[4];
+std::array<double, 4> DEFAULT_JOINT_ANGLES = {lego_model.joint_lims[0][0] + 0.01, lego_model.joint_lims[1][0] + 0.01, lego_model.joint_lims[2][0] + 0.01, lego_model.joint_lims[3][0] + 0.01};
+std::array<double, 4> current_joint_angles = DEFAULT_JOINT_ANGLES;
 
 void matrix_to_pos(double matrix[4][4], double pos[3]) {
 	pos[0] = matrix[0][3];

@@ -1,6 +1,8 @@
 #pragma once
 
+extern "C" {
 #include "kinematics.h"
+}
 #include "lego_model.hpp"
 #include <Eigen/Geometry>
 #include <Eigen/src/Core/Matrix.h>

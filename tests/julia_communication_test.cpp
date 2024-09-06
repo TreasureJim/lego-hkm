@@ -1,23 +1,25 @@
+#include "IMotion.hpp"
 #include "juliet_comms.hpp"
+#include "options.hpp"
 #include <cstdio>
 #include <thread>
 #include <client.hpp>
 
 using namespace std::chrono_literals;
 
-void print_command(FILE *out, motion_command &command) {
-	fprintf(out, "Type: %d, ID: ", command.type);
+void print_command(FILE *out, IMotion &command) {
+	fprintf(out, "ID: ");
 	for (int i = 0; i < 16; i++) {
-		fprintf(out, "%02x", command.motion.pos.motion_id[i]);
+		fprintf(out, "%02x", command.uuid[i]);
 	}
 	fprintf(out, "\n");
 }
 
-motion_command command;
+std::unique_ptr<IMotion> command;
 
 // assumes there are commands in queue and queue is locked for this thread
 void get_commands() {
-	command = motion_queue.front();
+	command = std::move(motion_queue.front());
 	motion_queue.pop();
 }
 
@@ -39,8 +41,8 @@ void robot_thread_func() {
 		}
 
 		std::this_thread::sleep_for(1000ms);
-		print_command(stdout, command);
-		send_command_status(command, CMD_COMPLETED);
+		print_command(stdout, *command);
+		send_command_status(*command, CMD_COMPLETED);
 	}
 }
 
@@ -56,7 +58,7 @@ int main(int argc, char *argv[]) {
 
 	std::thread robot_thread(robot_thread_func);
 
-	juliet_communication(jl_socket);
+	juliet_communication(jl_socket, calibration_location);
 
 	return 0;
 }

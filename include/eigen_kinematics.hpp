@@ -1,5 +1,9 @@
 #pragma once
 
+extern "C" {
+#include "motion_types.h"
+}
+
 #include <Eigen/Dense>
 #include <array>
 #include <optional>

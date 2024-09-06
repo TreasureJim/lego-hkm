@@ -2,10 +2,14 @@
 
 #include "math/3d_circle.hpp"
 #include <Eigen/Eigen>
+#include <Eigen/src/Core/Matrix.h>
 
 extern "C" {
 #include "motion_types.h"
 }
+
+std::array<double, 4> hkmpos_to_array(hkmpos pos);
+Eigen::Vector3d array_to_pos(std::array<double, 4> joints);
 
 enum motiontype_e {
 	MOVE_POS,
@@ -28,16 +32,19 @@ struct motion_command {
 	motion_u motion;
 };
 
-
 class IMotion {
   protected:
 	const Eigen::Vector3d origin_pos;
 	const Eigen::Vector3d target_pos;
 
-	IMotion(Eigen::Vector3d origin_pos, Eigen::Vector3d target_pos);
+	IMotion(uint8_t uuid[16], Eigen::Vector3d origin_pos, Eigen::Vector3d target_pos);
 
   public:
-	static IMotion* motion_com_to_IMotion(Eigen::Vector3d origin_pos, motion_command command);
+	uint8_t uuid[16];
+
+	static IMotion *motion_com_to_IMotion(Eigen::Vector3d origin_pos, motion_command command);
+	Eigen::Vector3d get_target_pos();
+
 	virtual Eigen::Vector3d GetPoint(float t) = 0;
 	virtual bool is_valid() = 0;
 };
@@ -62,7 +69,7 @@ class MotionArc : public IMotion {
 
 class MotionLinear : public IMotion {
   public:
-	MotionLinear(Eigen::Vector3d origin_pos, Eigen::Vector3d target);
+	MotionLinear(Eigen::Vector3d origin_pos, movelinear linear_com);
 	Eigen::Vector3d GetPoint(float t) override;
 	bool is_valid() override;
 };
@@ -74,7 +81,7 @@ class MotionPath : public IMotion {
 	std::vector<float> point_percentages;
 
   public:
-	MotionPath(Eigen::Vector3d origin_pos, Eigen::Vector3d target);
+	MotionPath(Eigen::Vector3d origin_pos, movepos path_com);
 	Eigen::Vector3d GetPoint(float t) override;
 	bool is_valid() override;
 };

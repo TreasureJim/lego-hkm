@@ -1,3 +1,4 @@
+#include "IMotion.hpp"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -7,7 +8,6 @@
 #define RAD_TO_DEG 57.295779513
 
 #include "kinematics.h"
-#include "math/3d_circle.hpp"
 #include "motors.hpp"
 
 #include "robot.hpp"
@@ -36,12 +36,12 @@ int Robot::go_to(Eigen::Vector3d pos) {
 		return 0;
 	}
 
-	motor_transition_angle(current_joint_angles, goal_servo_angles);
+	motor_transition_angle(current_joint_angles.data(), goal_servo_angles);
 	return 1;
 }
 
 void Robot::robot_shutdown() {
-	double *default_angles = DEFAULT_JOINT_ANGLES;
+	const double *default_angles = DEFAULT_JOINT_ANGLES.data();
 	this->go_to(joint_angle_to_cart_loc(default_angles));
 	motor_shutdown();
 }
@@ -50,7 +50,7 @@ Robot::Robot() { error = !robot_setup(); }
 
 Robot::~Robot() { robot_shutdown(); }
 
-Eigen::Vector3d Robot::get_current_cart_loc() { return joint_angle_to_cart_loc(current_joint_angles); }
+Eigen::Vector3d Robot::get_current_cart_loc() { return joint_angle_to_cart_loc(current_joint_angles.data()); }
 
 int Robot::move_joint(double joints[4]) {
 	// checking if valid angles
@@ -65,14 +65,22 @@ int Robot::move_joint(double joints[4]) {
 	}
 
 	// move motors
-	motor_transition_angle(current_joint_angles, joints);
+	motor_transition_angle(current_joint_angles.data(), joints);
 	return 1;
 }
 
 int Robot::execute_motion(IMotion& motion, float interval_size) {
-	if (!motion.is_valid()) return 1;
+	if (!motion.is_valid()) return 0;
+
+	try {
+		MotionJoint& jointmotion = dynamic_cast<MotionJoint&>(motion);
+		this->move_joint(jointmotion.get_angles().data());
+		return 1;
+	} catch (const std::bad_cast& e) {}
 
 	for(float p = 0.0; p <= 1.0; p += 0.05) {
 		this->go_to(motion.GetPoint(p));
 	}
+
+	return 1;
 }

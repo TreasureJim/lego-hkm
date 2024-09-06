@@ -4,8 +4,8 @@
 
 void matrix_to_pos(double matrix[4][4], double pos[3]);
 
-extern double DEFAULT_JOINT_ANGLES[4];
-extern double current_joint_angles[4];
+extern std::array<double, 4> DEFAULT_JOINT_ANGLES;
+extern std::array<double, 4> current_joint_angles;
 
 bool motor_setup();
 void motor_shutdown();
