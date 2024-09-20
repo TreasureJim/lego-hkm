@@ -28,14 +28,14 @@ int main(int argc, char *argv[]) {
 	if ((jl_socket = connect_to_server(argv[1], argv[2])) < 0)
 		exit(1);
 
-	std::unique_ptr<Robot> robot;
-	if (robot.error) {
+	LegoRobot* robot = new LegoRobot(lego_model);
+	if (robot->error) {
 		fprintf(stderr, "[ERROR] Could not initialise robot.\n");
 		exit(EXIT_FAILURE);
 	}
-	std::thread robot_thread(robot_thread_func);
+	std::thread robot_thread(robot_thread_func, robot);
 
-	juliet_communication(jl_socket, );
+	juliet_communication(jl_socket, robot->get_current_cart_loc());
 
 	return 0;
 }

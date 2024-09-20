@@ -2,6 +2,7 @@ FILE(COPY juliet-server DESTINATION ${CMAKE_BINARY_DIR})
 FILE(REMOVE ${CMAKE_BINARY_DIR}/juliet-server/src/gen)
 
 add_subdirectory(chan-gen-types)
+add_subdirectory(visualisation-integration)
 
 set(SOURCE_FILES
     IMotion.cpp

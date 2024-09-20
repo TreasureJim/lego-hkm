@@ -33,7 +33,7 @@ bool execute_command(Robot &robot) {
 	return true;
 }
 
-void robot_thread_func(Robot robot) {
+void robot_thread_func(Robot* robot) {
 	while (true) {
 		// check if queue is empty
 		{
@@ -49,7 +49,7 @@ void robot_thread_func(Robot robot) {
 			}
 		}
 
-		if (!execute_command(robot)) {
+		if (!execute_command(*robot)) {
 			send_command_status(*current_command, CMD_FAILED);
 			return;
 		}
