@@ -1,5 +1,4 @@
 #include "kinematics.h"
-#include "lego_model.hpp"
 #include <Eigen/Dense>
 #include <array>
 #include <optional>
@@ -12,11 +11,11 @@ std::array<double, 3> pos_to_array(const Eigen::Vector3d &vec) {
 	return arr;
 }
 
-std::optional<std::array<double, 4>> inverse(Eigen::Vector3d pos) {
+std::optional<std::array<double, 4>> inverse(Eigen::Vector3d pos, agile_pkm_model* model) {
 	std::array<double, 4> joints;
 	auto pos_arr = pos_to_array(pos);
 
-	if (inv(&lego_model, pos_arr.data(), 0.0, joints.data()) < 0)
+	if (inv(model, pos_arr.data(), 0.0, joints.data()) < 0)
 		return std::nullopt;
 
 	return joints;

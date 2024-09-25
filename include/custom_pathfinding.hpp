@@ -3,9 +3,14 @@
 #include <Eigen/Dense>
 #include <optional>
 
+extern "C" {
+#include "kinematics.h"
+}
 #include "pathfinding.hpp"
 
 class PathFinding {
+	agile_pkm_model* model;
+
 	Eigen::Vector3d limits_min;
 	Eigen::Vector3d limits_max;
 

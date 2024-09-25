@@ -29,7 +29,7 @@ public:
     int execute_motion(IMotion& motion, float interval_size = 0.05);
 };
 
-class LegoRobot : Robot {
+class LegoRobot : public Robot {
     int robot_setup() override;
     void robot_shutdown() override;
     int go_to(Eigen::Vector3d pos) override;
@@ -40,7 +40,7 @@ public:
     ~LegoRobot();
 };
 
-class FakeVisRobot : Robot {
+class FakeVisRobot : public Robot {
     int port;
     int s_socket;
     int vis_conn;

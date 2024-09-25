@@ -8,6 +8,7 @@ set(SOURCE_FILES
     lego_model.cpp
     motors.cpp
     robot.cpp
+    lego_robot.cpp
     eigen_kinematics.cpp
     juliet_comms.cpp
     robot_thread.cpp

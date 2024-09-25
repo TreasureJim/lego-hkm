@@ -23,36 +23,36 @@ std::array<double, 4> hkmpos_to_array(hkmpos pos) {
 	return arr;
 }
 
-Eigen::Vector3d array_to_pos(std::array<double, 4> joints) {
+Eigen::Vector3d array_to_pos(std::array<double, 4> joints, agile_pkm_model* model) {
 	double pos[3];
-	cart_to_drive(&lego_model, pos, 0.0, joints.data());
+	cart_to_drive(model, pos, 0.0, joints.data());
 	Eigen::Vector3d vec(pos);
 	return vec;
 }
 
-IMotion::IMotion(uint8_t uuid[16], Eigen::Vector3d origin_pos, Eigen::Vector3d target_pos)
-	: origin_pos(origin_pos), target_pos(target_pos) {
+IMotion::IMotion(uint8_t uuid[16], Eigen::Vector3d origin_pos, Eigen::Vector3d target_pos, struct agile_pkm_model* model)
+	: origin_pos(origin_pos), target_pos(target_pos), model(model) {
 	memcpy(this->uuid, uuid, sizeof(this->uuid));
 }
 
-IMotion *IMotion::motion_com_to_IMotion(Eigen::Vector3d origin_pos, motion_command command) {
+IMotion *IMotion::motion_com_to_IMotion(Eigen::Vector3d origin_pos, motion_command command, agile_pkm_model* model) {
 	IMotion *motion;
 
 	switch (command.type) {
 	case MOVE_POS: {
-		motion = new MotionPath(origin_pos, command.motion.pos);
+		motion = new MotionPath(origin_pos, command.motion.pos, model);
 	}
 	case MOVE_LIN: {
-		motion = new MotionLinear(origin_pos, command.motion.linear);
+		motion = new MotionLinear(origin_pos, command.motion.linear, model);
 	}
 	case MOVE_ARC: {
-		motion = new MotionArc(origin_pos, command.motion.arc);
+		motion = new MotionArc(origin_pos, command.motion.arc, model);
 	}
 	case MOVE_CIRC: {
-		motion = new MotionCircle(origin_pos, command.motion.circular);
+		motion = new MotionCircle(origin_pos, command.motion.circular, model);
 	}
 	case MOVE_JOINT: {
-		motion = new MotionJoint(origin_pos, command.motion.joint);
+		motion = new MotionJoint(origin_pos, command.motion.joint, model);
 	}
 	default: {
 		throw "[ERROR] Unrecognised motion command. ";
@@ -68,8 +68,8 @@ Eigen::Vector3d IMotion::get_target_pos() {
 
 // MotionCircle
 
-MotionCircle::MotionCircle(Eigen::Vector3d origin_pos, movecircular circle)
-	: IMotion(circle.motion_id, origin_pos, robtarget_to_vector(circle.target)),
+MotionCircle::MotionCircle(Eigen::Vector3d origin_pos, movecircular circle, agile_pkm_model* model)
+	: IMotion(circle.motion_id, origin_pos, robtarget_to_vector(circle.target), model),
 	  circle_3d(origin_pos, robtarget_to_vector(circle.apos), robtarget_to_vector(circle.target)) {}
 
 Eigen::Vector3d MotionCircle::GetPoint(float t) { return this->circle_3d.get_circle_coord(t * 2 * M_PI); }
@@ -78,8 +78,8 @@ bool MotionCircle::is_valid() { return this->circle_3d.check_circle_valid_path()
 
 // MotionArc
 
-MotionArc::MotionArc(Eigen::Vector3d origin_pos, movearc arc)
-	: IMotion(arc.motion_id, origin_pos, robtarget_to_vector(arc.target)),
+MotionArc::MotionArc(Eigen::Vector3d origin_pos, movearc arc, agile_pkm_model* model)
+	: IMotion(arc.motion_id, origin_pos, robtarget_to_vector(arc.target), model),
 	  circle_3d(origin_pos, robtarget_to_vector(arc.apos), robtarget_to_vector(arc.target)) {}
 
 Eigen::Vector3d MotionArc::GetPoint(float t) { return this->circle_3d.get_arc_coord(t); }
@@ -88,7 +88,7 @@ bool MotionArc::is_valid() { return this->circle_3d.check_arc_valid_path(); }
 
 // MotionLinear
 
-MotionLinear::MotionLinear(Eigen::Vector3d origin_pos, movelinear linear_com) : IMotion(linear_com.motion_id, origin_pos, robtarget_to_vector(linear_com.target)) {}
+MotionLinear::MotionLinear(Eigen::Vector3d origin_pos, movelinear linear_com, agile_pkm_model* model) : IMotion(linear_com.motion_id, origin_pos, robtarget_to_vector(linear_com.target), model) {}
 
 Eigen::Vector3d MotionLinear::GetPoint(float t) { return this->origin_pos + (this->target_pos - this->origin_pos) * t; }
 
@@ -96,7 +96,7 @@ bool MotionLinear::is_valid() {
 	for (float p = 0.0; p <= 1.0; p += 0.05) {
 		auto vec = this->GetPoint(p);
 		double pos[3] = {vec.x(), vec.y(), vec.z()};
-		if (inv(&lego_model, pos, 0.0, NULL) < 0) {
+		if (inv(this->model, pos, 0.0, NULL) < 0) {
 			return false;
 		}
 	}
@@ -106,8 +106,8 @@ bool MotionLinear::is_valid() {
 
 // MotionPath
 
-MotionPath::MotionPath(Eigen::Vector3d origin_pos, movepos path_com)
-	: IMotion(path_com.motion_id, origin_pos, robtarget_to_vector(path_com.target)), path(PathFinding().find_path(origin_pos, robtarget_to_vector(path_com.target)).value()) {
+MotionPath::MotionPath(Eigen::Vector3d origin_pos, movepos path_com, agile_pkm_model* model)
+	: IMotion(path_com.motion_id, origin_pos, robtarget_to_vector(path_com.target), model), path(PathFinding().find_path(origin_pos, robtarget_to_vector(path_com.target)).value()) {
 	for (int i = 1; i < this->path.size(); i++) {
 		this->total_path_size += (this->path[i] - this->path[i - 1]).norm();
 	}
@@ -139,13 +139,13 @@ bool MotionPath::is_valid() { return !this->path.empty(); }
 
 // MotionJoint
 
-MotionJoint::MotionJoint(Eigen::Vector3d origin_pos, movejoint joint_com)
-	: IMotion(joint_com.motion_id, origin_pos, array_to_pos(hkmpos_to_array(joint_com.target))), angles(hkmpos_to_array(joint_com.target)) {}
+MotionJoint::MotionJoint(Eigen::Vector3d origin_pos, movejoint joint_com, agile_pkm_model* model)
+	: IMotion(joint_com.motion_id, origin_pos, array_to_pos(hkmpos_to_array(joint_com.target), model), model), angles(hkmpos_to_array(joint_com.target)) {}
 
 std::array<double, 4> MotionJoint::get_angles() { return this->angles; };
 
 bool MotionJoint::is_valid() {
-	return inverse(this->target_pos).has_value();
+	return inverse(this->target_pos, this->model).has_value();
 }
 
 Eigen::Vector3d MotionJoint::GetPoint(float t) {

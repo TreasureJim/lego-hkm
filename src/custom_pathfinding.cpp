@@ -21,7 +21,7 @@ std::optional<Eigen::Vector3d> PathFinding::find_last_valid_pos(const Eigen::Vec
 	for (float perc = 0.0; perc <= 1.0; perc += 0.1) {
 		auto pos = start_pos + (end_pos - start_pos) * perc;
 
-		if (!inverse(pos).has_value()) {
+		if (!inverse(pos, this->model).has_value()) {
 			first_invalid = pos;
 			no_invalid = false;
 			break;
@@ -33,7 +33,7 @@ std::optional<Eigen::Vector3d> PathFinding::find_last_valid_pos(const Eigen::Vec
 	// traverse back until valid
 	for (float perc = 0.0; perc <= 1.0; perc += 0.1) {
 		Eigen::Vector3d pos = first_invalid - (first_invalid - start_pos) * perc;
-		if (inverse(pos).has_value())
+		if (inverse(pos, this->model).has_value())
 			return pos;
 	}
 
@@ -67,12 +67,12 @@ Eigen::Vector3d PathFinding::ray_box_intersection(Eigen::Vector3d pos, Eigen::Ve
 }
 
 /// Attempts to find closest valid position to start_pos
-Eigen::Vector3d generate_closest_valid_pos(Eigen::Vector3d start_pos, Eigen::Vector3d bounding_pos) {
+Eigen::Vector3d generate_closest_valid_pos(Eigen::Vector3d start_pos, Eigen::Vector3d bounding_pos, agile_pkm_model* model) {
 	auto dir = bounding_pos - start_pos;
 
 	for (int i = 10; i > 1; i--) {
 		auto try_pos = start_pos + dir / i;
-		if (inverse(try_pos).has_value()) return try_pos;
+		if (inverse(try_pos, model).has_value()) return try_pos;
 	}
 
 	return bounding_pos;
@@ -104,7 +104,7 @@ std::optional<std::vector<Eigen::Vector3d>> PathFinding::find_path(Eigen::Vector
 
 		auto vec_cross = (path.back() - hit_pos).cross(UP_VEC).normalized();
 		auto intersection_point = this->ray_box_intersection(hit_pos, vec_cross);
-		path.push_back(generate_closest_valid_pos(hit_pos, intersection_point));
+		path.push_back(generate_closest_valid_pos(hit_pos, intersection_point, this->model));
 	}
 
 	path.push_back(goal_pos);

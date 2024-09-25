@@ -21,13 +21,15 @@ extern "C" {
 #include "motion_types.h"
 }
 
+agile_pkm_model* model;
+
 std::mutex motion_queue_mutex;
 std::queue<std::unique_ptr<IMotion>> motion_queue;
 std::condition_variable motion_queue_trigger;
 Eigen::Vector3d last_target_pos;
 
 void push_to_queue(motion_command command) {
-	IMotion* motion = IMotion::motion_com_to_IMotion(last_target_pos, command);
+	IMotion* motion = IMotion::motion_com_to_IMotion(last_target_pos, command, model);
 	last_target_pos = motion->get_target_pos();
 	motion_queue.push(std::unique_ptr<IMotion>(motion));
 	motion_queue_trigger.notify_one();
@@ -59,7 +61,8 @@ struct chan_decoder *decoder = nullptr;
 char decoder_ctx[] = "decoder context";
 
 int socket_fd;
-void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location) {
+void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location, agile_pkm_model* c_model) {
+	model = c_model;
 	last_target_pos = initial_location;
 
 	socket_fd = juliet_socket;

@@ -1,3 +1,7 @@
+extern "C" {
+#include "mark2_0.h"
+}
+
 #include "eigen_kinematics.hpp"
 #include "custom_pathfinding.hpp"
 #include <Eigen/Dense>
@@ -15,7 +19,7 @@ Eigen::Vector3d interpolate_pos(Eigen::Vector3d start, Eigen::Vector3d end, floa
 }
 
 inline bool validate_position(Eigen::Vector3d pos) {
-	return inverse(pos).has_value();
+	return inverse(pos, &mark2_0).has_value();
 }
 
 int main() {

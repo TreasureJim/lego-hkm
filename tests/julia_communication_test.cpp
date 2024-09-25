@@ -5,6 +5,10 @@
 #include <thread>
 #include <client.hpp>
 
+extern "C" {
+	#include "mark2_0.h"
+}
+
 using namespace std::chrono_literals;
 
 void print_command(FILE *out, IMotion &command) {
@@ -58,7 +62,7 @@ int main(int argc, char *argv[]) {
 
 	std::thread robot_thread(robot_thread_func);
 
-	juliet_communication(jl_socket, calibration_location);
+	juliet_communication(jl_socket, calibration_location, &mark2_0);
 
 	return 0;
 }
