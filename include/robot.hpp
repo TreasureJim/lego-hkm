@@ -41,6 +41,20 @@ public:
 };
 
 class FakeVisRobot : Robot {
+    int port;
+    int s_socket;
+    int vis_conn;
+    struct chan_encoder * encoder;
+
+    int fake_delay = 0.0;
+
+    int robot_setup();
+    void robot_shutdown();
+    int go_to(Eigen::Vector3d pos);
+
+public:
+    FakeVisRobot(int port, int fake_delay);
+    ~FakeVisRobot();
 };
 
 void robot_thread_func();

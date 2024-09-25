@@ -11,6 +11,7 @@
 #include <queue>
 #include <stdio.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 extern "C" {
 #include "chan/decoder.h"
@@ -82,6 +83,11 @@ void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location) {
 	int status;
 	while ((status = chan_decode(decoder)) == 0)
 		;
+
+	chan_decoder_free(decoder);
+	chan_encoder_free(encoder);
+
+	close(socket_fd);
 
 	printf("Received non-zero status from chan: %d.\n", status);
 }
