@@ -3,7 +3,6 @@
 extern "C" {
 #include "kinematics.h"
 }
-#include "lego_model.hpp"
 #include <Eigen/Geometry>
 #include <Eigen/src/Core/Matrix.h>
 #include <array>
@@ -11,6 +10,8 @@ extern "C" {
 
 class Circle_3D {
   private:
+	agile_pkm_model* model;
+
 	std::array<Eigen::Vector3d, 3> points;
 
 	Eigen::Vector3d origin_3d;
@@ -124,7 +125,7 @@ class Circle_3D {
 	}
 
   public:
-	Circle_3D(Eigen::Vector3d p1, Eigen::Vector3d p2, Eigen::Vector3d p3) {
+	Circle_3D(agile_pkm_model* model, Eigen::Vector3d p1, Eigen::Vector3d p2, Eigen::Vector3d p3): model(model) {
 		this->points = {p1, p2, p3};
 		this->find_circle_centre_radius_3d();
 		this->paramtric_arc_3d();
@@ -146,7 +147,7 @@ class Circle_3D {
 		for (float p = 0.0; p <= 1.0; p += 0.05) {
 			auto vec = this->get_circle_coord(p);
 			double pos[3] = {vec.x(), vec.y(), vec.z()};
-			if (inv(&lego_model, pos, 0.0, NULL) < 0) {
+			if (inv(this->model, pos, 0.0, NULL) < 0) {
 				return false;
 			}
 		}
@@ -158,7 +159,7 @@ class Circle_3D {
 		for (float p = 0.0; p <= 1.0; p += 0.05) {
 			auto vec = this->get_arc_coord(p);
 			double pos[3] = {vec.x(), vec.y(), vec.z()};
-			if (inv(&lego_model, pos, 0.0, NULL) < 0) {
+			if (inv(this->model, pos, 0.0, NULL) < 0) {
 				return false;
 			}
 		}

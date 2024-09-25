@@ -1,3 +1,7 @@
+extern "C" {
+#include "mark2_0.h"
+}
+
 #include "pathfinding.hpp"
 #include "test_helpers.hpp"
 #include <Eigen/Dense>
@@ -33,8 +37,8 @@ EXPORT double *find_path(double start_x, double start_y, double start_z, double 
 }
 
 EXPORT double *find_path_random(int *path_size) {
-	Eigen::Vector3d start = random_valid_cart_pos();
-	Eigen::Vector3d goal = random_valid_cart_pos();
+	Eigen::Vector3d start = random_valid_cart_pos(&mark2_0);
+	Eigen::Vector3d goal = random_valid_cart_pos(&mark2_0);
 
 	return find_path(start.x(), start.y(), start.z(), goal.x(), goal.y(), goal.z(), path_size);
 }

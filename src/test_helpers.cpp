@@ -1,6 +1,5 @@
 #include <Eigen/Dense>
 #include <random>
-#include "lego_model.hpp"
 
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
 #include <boost/thread/pthread/thread_data.hpp>
@@ -26,18 +25,18 @@ std::chrono::system_clock::rep time_since_epoch(){
 }
 
 std::default_random_engine re(time_since_epoch());
-Eigen::Vector3d random_valid_cart_pos(void) {
+Eigen::Vector3d random_valid_cart_pos(agile_pkm_model* model) {
   double joint_angles[4];
   for (int i = 0; i < 4; i++) {
-    std::uniform_real_distribution<double> unif(lego_model.joint_lims[i][0] +
+    std::uniform_real_distribution<double> unif(model->joint_lims[i][0] +
                                                     0.0001,
-                                                lego_model.joint_lims[i][1]);
+                                                model->joint_lims[i][1] - 0.0001);
     joint_angles[i] = unif(re);
   }
 
   double matrix[4][4];
   double angle = 0.0;
-  fwd(&lego_model, joint_angles, matrix, &angle);
+  fwd(model, joint_angles, matrix, &angle);
 
   return Eigen::Vector3d(matrix[0][3], matrix[1][3], matrix[2][3]);
 }

@@ -23,8 +23,8 @@ inline bool validate_position(Eigen::Vector3d pos) {
 }
 
 int main() {
-	auto start = random_valid_cart_pos();
-	auto end = random_valid_cart_pos();
+	auto start = random_valid_cart_pos(&mark2_0);
+	auto end = random_valid_cart_pos(&mark2_0);
 	std::cout << start << '\n' << end << std::endl;
 
 	PathFinding pathfinding;

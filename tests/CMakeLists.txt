@@ -40,6 +40,8 @@ set_target_properties(custom_pathfinding_vis_test PROPERTIES
 )
 
 # Test juliet communication queue
+
+# Client
 add_executable(juliet_comms_test
     ${SOURCE_DIR}/juliet_comms.cpp
     ${SOURCE_DIR}/client.cpp
@@ -64,6 +66,7 @@ target_include_directories(juliet_comms_test PUBLIC
     ${PROJECT_SOURCE_DIR}/include
 )
 
+# Server
 add_executable(juliet_comms_server
   julia_comm_server_test.cpp
 )
@@ -75,6 +78,32 @@ set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
 target_include_directories(juliet_comms_server PUBLIC
     ${LOCAL_LIBS_DIR}/chan/include
     ${CMAKE_BINARY_DIR}/gen_c
+
+    ${PROJECT_SOURCE_DIR}/include
+)
+
+# Visualisation connection test
+
+add_executable(vis_control_test
+    ${SOURCE_DIR}/IMotion.cpp
+    ${SOURCE_DIR}/robot.cpp
+    ${SOURCE_DIR}/visualisation-integration/vis_robot.cpp
+    ${SOURCE_DIR}/test_helpers.cpp
+    ${SOURCE_DIR}/eigen_kinematics.cpp
+    ${SOURCE_DIR}/custom_pathfinding.cpp
+    vis_control_test.cpp
+)
+target_link_libraries(vis_control_test PUBLIC 
+chan-static
+chan-comms
+IK-lib
+)
+set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
+target_include_directories(vis_control_test PUBLIC
+    ${LOCAL_LIBS_DIR}/chan/include
+    ${LOCAL_LIBS_DIR}/IK-lib
+    ${CMAKE_BINARY_DIR}/gen_c
+    ${LOCAL_LIBS_DIR}/librobotcontrol/library/include
 
     ${PROJECT_SOURCE_DIR}/include
 )

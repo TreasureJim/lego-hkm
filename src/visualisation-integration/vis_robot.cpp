@@ -14,7 +14,10 @@ extern "C" {
 
 using namespace std::chrono_literals;
 
-FakeVisRobot::FakeVisRobot(int port, int fake_delay = 0) : Robot(mark2_0), port(port), fake_delay(fake_delay) {
+FakeVisRobot::FakeVisRobot(int fake_delay, int port, Eigen::Vector3d starting_pos) : Robot(mark2_0), port(port), fake_delay(fake_delay), current_loc(starting_pos) {
+}
+
+FakeVisRobot::FakeVisRobot() : Robot(mark2_0) {
 	assert(port >= 0 && port < 65535);
 	if (this->robot_setup() < 0) {
 		this->error = true;
@@ -100,7 +103,13 @@ int FakeVisRobot::go_to(Eigen::Vector3d pos) {
 
 	encode_hkmpos(this->encoder, &hkm_pos);
 
+	this->current_loc = pos;
+
 	// Delay
 	std::this_thread::sleep_for(std::chrono::milliseconds(this->fake_delay));
 	return 0;
+}
+
+Eigen::Vector3d FakeVisRobot::get_current_cart_loc() {
+	return this->current_loc;
 }

@@ -11,6 +11,7 @@
 #include "motors.hpp"
 
 #include "robot.hpp"
+#include <lego_model.hpp>
 
 LegoRobot::LegoRobot(agile_pkm_model &model) : Robot(model) { error = !this->robot_setup(); }
 
@@ -41,3 +42,6 @@ int LegoRobot::go_to(Eigen::Vector3d pos) {
 	motor_transition_angle(current_joint_angles.data(), goal_servo_angles);
 	return 1;
 }
+
+Eigen::Vector3d LegoRobot::get_current_cart_loc() { return joint_angle_to_cart_loc(current_joint_angles.data()); }
+

@@ -23,7 +23,7 @@ public:
 
     Robot(agile_pkm_model& model);
 
-    Eigen::Vector3d get_current_cart_loc();
+    virtual Eigen::Vector3d get_current_cart_loc() = 0;
     // int move_joint(double joints[4]);
 
     int execute_motion(IMotion& motion, float interval_size = 0.05);
@@ -35,26 +35,32 @@ class LegoRobot : public Robot {
     int go_to(Eigen::Vector3d pos) override;
 
 public:
-
     LegoRobot(agile_pkm_model& model);
     ~LegoRobot();
+    
+    Eigen::Vector3d get_current_cart_loc() override;
 };
 
 class FakeVisRobot : public Robot {
-    int port;
+    int port = 4445;
     int s_socket;
     int vis_conn;
     struct chan_encoder * encoder;
 
     int fake_delay = 0.0;
 
-    int robot_setup();
-    void robot_shutdown();
-    int go_to(Eigen::Vector3d pos);
+    Eigen::Vector3d current_loc = Eigen::Vector3d(945, 906, -30.5);
+
+    int robot_setup() override;
+    void robot_shutdown() override;
+    int go_to(Eigen::Vector3d pos) override;
 
 public:
-    FakeVisRobot(int port, int fake_delay);
+    FakeVisRobot(int fake_delay = 50, int port = 4445, Eigen::Vector3d starting_pos = Eigen::Vector3d(945, 906, -30.5));
+    FakeVisRobot();
     ~FakeVisRobot();
+
+    Eigen::Vector3d get_current_cart_loc() override;
 };
 
 void robot_thread_func();

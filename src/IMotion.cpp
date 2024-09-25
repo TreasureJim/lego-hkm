@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include <array>
 #include <cassert>
+#include <cstdint>
 #include <cstring>
 #include <vector>
 #include "eigen_kinematics.hpp"
@@ -70,7 +71,7 @@ Eigen::Vector3d IMotion::get_target_pos() {
 
 MotionCircle::MotionCircle(Eigen::Vector3d origin_pos, movecircular circle, agile_pkm_model* model)
 	: IMotion(circle.motion_id, origin_pos, robtarget_to_vector(circle.target), model),
-	  circle_3d(origin_pos, robtarget_to_vector(circle.apos), robtarget_to_vector(circle.target)) {}
+	  circle_3d(model, origin_pos, robtarget_to_vector(circle.apos), robtarget_to_vector(circle.target)) {}
 
 Eigen::Vector3d MotionCircle::GetPoint(float t) { return this->circle_3d.get_circle_coord(t * 2 * M_PI); }
 
@@ -80,7 +81,7 @@ bool MotionCircle::is_valid() { return this->circle_3d.check_circle_valid_path()
 
 MotionArc::MotionArc(Eigen::Vector3d origin_pos, movearc arc, agile_pkm_model* model)
 	: IMotion(arc.motion_id, origin_pos, robtarget_to_vector(arc.target), model),
-	  circle_3d(origin_pos, robtarget_to_vector(arc.apos), robtarget_to_vector(arc.target)) {}
+	  circle_3d(model, origin_pos, robtarget_to_vector(arc.apos), robtarget_to_vector(arc.target)) {}
 
 Eigen::Vector3d MotionArc::GetPoint(float t) { return this->circle_3d.get_arc_coord(t); }
 
@@ -90,13 +91,16 @@ bool MotionArc::is_valid() { return this->circle_3d.check_arc_valid_path(); }
 
 MotionLinear::MotionLinear(Eigen::Vector3d origin_pos, movelinear linear_com, agile_pkm_model* model) : IMotion(linear_com.motion_id, origin_pos, robtarget_to_vector(linear_com.target), model) {}
 
+MotionLinear::MotionLinear(Eigen::Vector3d origin_pos, Eigen::Vector3d goal_pos, agile_pkm_model* model): IMotion(std::array<uint8_t, 16>().data(), origin_pos, goal_pos, model) {}
+
 Eigen::Vector3d MotionLinear::GetPoint(float t) { return this->origin_pos + (this->target_pos - this->origin_pos) * t; }
 
 bool MotionLinear::is_valid() {
 	for (float p = 0.0; p <= 1.0; p += 0.05) {
 		auto vec = this->GetPoint(p);
 		double pos[3] = {vec.x(), vec.y(), vec.z()};
-		if (inv(this->model, pos, 0.0, NULL) < 0) {
+		double angles[4];
+		if (inv(this->model, pos, 0.0, angles) < 0) {
 			return false;
 		}
 	}

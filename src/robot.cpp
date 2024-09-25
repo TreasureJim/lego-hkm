@@ -26,16 +26,16 @@ Eigen::Vector3d Robot::joint_angle_to_cart_loc(const double angles[4]) {
 	return ::joint_angle_to_cart_loc(this->model, angles);
 }
 
-Eigen::Vector3d Robot::get_current_cart_loc() { return joint_angle_to_cart_loc(current_joint_angles.data()); }
-
 int Robot::execute_motion(IMotion &motion, float interval_size) {
-	if (!motion.is_valid())
-		return 0;
+	if (!motion.is_valid()) {
+		fprintf(stderr, "[ERROR] Invalid motion.\n");
+		return -1;
+	}
 
 	/* try {
-		MotionJoint &jointmotion = dynamic_cast<MotionJoint &>(motion);
-		this->move_joint(jointmotion.get_angles().data());
-		return 1;
+	    MotionJoint &jointmotion = dynamic_cast<MotionJoint &>(motion);
+	    this->move_joint(jointmotion.get_angles().data());
+	    return 1;
 	} catch (const std::bad_cast &e) {
 	} */
 
@@ -62,4 +62,3 @@ int Robot::execute_motion(IMotion &motion, float interval_size) {
     motor_transition_angle(current_joint_angles.data(), joints);
     return 1;
 } */
-
