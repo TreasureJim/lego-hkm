@@ -1,6 +1,8 @@
+#include <sys/socket.h>
 #include <thread>
 #include <unistd.h>
 
+#include "chan/writer.h"
 #include "robot.hpp"
 #include <netinet/in.h>
 
@@ -92,9 +94,22 @@ int FakeVisRobot::robot_setup() {
 }
 
 void FakeVisRobot::robot_shutdown() {
+	chan_writer *writer = this->encoder->writer;
 	chan_encoder_free(this->encoder);
+	fd_writer_free(writer);
 
+	if (shutdown(this->vis_conn, SHUT_RDWR) < 0) {
+		fprintf(stderr, "Shutdown of client socket failed\n");
+	} else {
+		printf("Graceful shutdown initiated for client socket.\n");
+	}
 	close(this->vis_conn);
+
+	if (shutdown(this->s_socket, SHUT_RDWR) < 0) {
+		fprintf(stderr, "Shutdown of server socket failed\n");
+	} else {
+		printf("Graceful shutdown initiated for server socket.\n");
+	}
 	close(this->s_socket);
 }
 
