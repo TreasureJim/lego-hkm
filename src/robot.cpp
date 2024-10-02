@@ -14,6 +14,10 @@
 
 Robot::Robot(agile_pkm_model &model) : model(model) {}
 
+agile_pkm_model& Robot::get_model() {
+	return this->model;
+}
+
 Eigen::Vector3d joint_angle_to_cart_loc(agile_pkm_model &model, const double angles[4]) {
 	double mat[4][4];
 	double orient;

@@ -1,3 +1,4 @@
+#include "lego_model.hpp"
 #include "juliet_comms.hpp"
 #include "motors.hpp"
 #include "robot.hpp"
@@ -6,12 +7,27 @@
 #include <cstdio>
 #include <cstdlib>
 #include <netinet/in.h>
-#include <string>
+#include <signal.h>
 #include <sys/socket.h>
 #include <thread>
 #include "client.hpp"
 
+Robot* robot;
+std::thread* robot_thread;
+
+void handle_sig(int sig) {
+	cleanup_juliet_comms();
+
+	stop_robot_thread = true;
+	robot_thread->join();
+
+	if (robot) delete robot;
+	exit(0);
+}
+
 int main(int argc, char *argv[]) {
+	signal(SIGINT, handle_sig);
+
 	if (argc > 1 && strcmp(argv[1], "--calibrate") == 0) {
 		motor_setup();
 		motor_reset_angle(); // Call the calibration function
@@ -28,14 +44,15 @@ int main(int argc, char *argv[]) {
 	if ((jl_socket = connect_to_server(argv[1], argv[2])) < 0)
 		exit(1);
 
-	LegoRobot* robot = new LegoRobot(lego_model);
+	robot = new LegoRobot(lego_model);
 	if (robot->error) {
 		fprintf(stderr, "[ERROR] Could not initialise robot.\n");
 		exit(EXIT_FAILURE);
 	}
-	std::thread robot_thread(robot_thread_func, robot);
 
-	juliet_communication(jl_socket, robot->get_current_cart_loc());
+	robot_thread = new std::thread(robot_thread_func, robot);
+
+	juliet_communication(jl_socket, robot->get_current_cart_loc(), &robot->get_model());
 
 	return 0;
 }

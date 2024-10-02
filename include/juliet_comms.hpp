@@ -21,3 +21,5 @@ enum command_status_e {
 	CMD_COMPLETED
 };
 void send_command_status(const IMotion &command, command_status_e status);
+
+void cleanup_juliet_comms();

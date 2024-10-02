@@ -1,8 +1,10 @@
 #pragma once
 
 #include "IMotion.hpp"
+#include "kinematics.h"
 #include "pathfinding.hpp"
 #include <Eigen/Dense>
+#include <atomic>
 
 Eigen::Vector3d joint_angle_to_cart_loc(agile_pkm_model& model, const double angles[4]);
 
@@ -19,9 +21,13 @@ protected:
     virtual int go_to(Eigen::Vector3d pos) = 0;
 
 public:
+    virtual ~Robot() = default;
+
     bool error = false;
 
     Robot(agile_pkm_model& model);
+
+    agile_pkm_model& get_model();
 
     virtual Eigen::Vector3d get_current_cart_loc() = 0;
     // int move_joint(double joints[4]);
@@ -64,4 +70,5 @@ public:
     Eigen::Vector3d get_current_cart_loc() override;
 };
 
-void robot_thread_func();
+extern std::atomic_bool stop_robot_thread;
+void robot_thread_func(Robot* robot);

@@ -8,6 +8,8 @@
 #include <optional>
 #include <stdio.h>
 
+std::atomic_bool stop_robot_thread = false;
+
 std::optional<std::unique_ptr<IMotion>> previous_command;
 std::unique_ptr<IMotion> current_command;
 std::optional<std::unique_ptr<IMotion>> next_command;
@@ -34,7 +36,7 @@ bool execute_command(Robot &robot) {
 }
 
 void robot_thread_func(Robot* robot) {
-	while (true) {
+	while (!stop_robot_thread) {
 		// check if queue is empty
 		{
 			std::unique_lock queue_lock(motion_queue_mutex);

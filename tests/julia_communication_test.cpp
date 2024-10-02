@@ -28,7 +28,7 @@ void get_commands() {
 }
 
 
-void robot_thread_func() {
+void robot_thread_func_test() {
 	while (true) {
 		// check if queue is empty
 		{
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 	if ((jl_socket = connect_to_server(argv[1], argv[2])) < 0)
 		exit(1);
 
-	std::thread robot_thread(robot_thread_func);
+	std::thread robot_thread(robot_thread_func_test);
 
 	juliet_communication(jl_socket, calibration_location, &mark2_0);
 

@@ -61,6 +61,17 @@ struct chan_decoder *decoder = nullptr;
 char decoder_ctx[] = "decoder context";
 
 int socket_fd;
+
+void cleanup_juliet_comms() {
+	fd_writer_free(encoder->writer);
+	chan_encoder_free(encoder);
+
+	fd_reader_free(decoder->reader);
+	chan_decoder_free(decoder);
+
+	close(socket_fd);
+}
+
 void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location, agile_pkm_model* c_model) {
 	model = c_model;
 	last_target_pos = initial_location;
@@ -87,11 +98,7 @@ void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location, a
 	while ((status = chan_decode(decoder)) == 0)
 		;
 
-	chan_decoder_free(decoder);
-	chan_encoder_free(encoder);
-
-	close(socket_fd);
-
+	cleanup_juliet_comms();
 	printf("Received non-zero status from chan: %d.\n", status);
 }
 

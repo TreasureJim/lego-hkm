@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <cstdint>
+#include <array>
 
 void matrix_to_pos(double matrix[4][4], double pos[3]);
 
