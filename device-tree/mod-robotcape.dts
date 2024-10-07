@@ -2701,7 +2701,7 @@
 						phandle = < 0x1ec >;
 					};
 
-					pinmux_P9_42_default_pin {
+					/* pinmux_P9_42_default_pin {
 						pinctrl-single,pins = < 0x164 0x27 >;
 						phandle = < 0x1ed >;
 					};
@@ -2719,14 +2719,14 @@
 					pinmux_P9_42_gpio_pd_pin {
 						pinctrl-single,pins = < 0x164 0x27 >;
 						phandle = < 0x1f0 >;
-					};
+					}; */
 
 					pinmux_P9_42_pwm_pin: pinmux_P9_42_pwm_pin  {
 						pinctrl-single,pins = < 0x164 0x20 >;
 						phandle = < 0x1f1 >;
 					};
 
-					pinmux_P9_42_uart_pin {
+					/* pinmux_P9_42_uart_pin {
 						pinctrl-single,pins = < 0x164 0x21 >;
 						phandle = < 0x1f2 >;
 					};
@@ -2749,7 +2749,7 @@
 					pinmux_P9_42_spi_sclk_pin {
 						pinctrl-single,pins = < 0x164 0x34 >;
 						phandle = < 0x1f6 >;
-					};
+					}; */
 
 					pinmux_P9_92_default_pin {
 						pinctrl-single,pins = < 0x1a0 0x27 >;
