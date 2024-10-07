@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 
 project(LegoHKM VERSION 0.1)
+set(CMAKE_CXX_STANDARD 17)
 
 option(BUILD_PROD "Build for BeagleBoard" OFF)
 option(USE_OMPL "Build with OMPL library" OFF)
