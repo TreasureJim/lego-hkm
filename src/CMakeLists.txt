@@ -67,3 +67,10 @@ target_link_libraries(MotorControl PUBLIC
     ${Boost_LIBRARIES}
     robotics_cape
 )
+
+# Calibration Program
+
+add_executable(Calibration calibration/calibration_program.cpp)
+target_link_libraries(Calibration PUBLIC
+    robotics_cape
+)
