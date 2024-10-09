@@ -21,8 +21,8 @@ int LegoRobot::robot_setup() {
 	if (!motor_setup())
 		return false;
 
-	// printf("Setting motors to default positions.\n");
-	// motor_reset_angle();
+	printf("Setting motors to default positions.\n");
+	motor_reset_angle();
 	return true;
 }
 
