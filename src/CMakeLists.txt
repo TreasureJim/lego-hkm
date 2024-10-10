@@ -75,3 +75,17 @@ add_executable(Calibration calibration/calibration_program.cpp)
 target_link_libraries(Calibration PUBLIC
     robotics_cape
 )
+
+# Jogging Program
+
+add_executable(Jogging 
+jogging/jogging_program.cpp
+motors.cpp
+calibration/calibration_parsing.cpp
+lego_model.cpp
+)
+target_link_libraries(Jogging PUBLIC
+    robotics_cape
+    IK-lib
+    ${Boost_LIBRARIES}
+)

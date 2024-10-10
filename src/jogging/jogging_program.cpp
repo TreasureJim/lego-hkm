@@ -1,0 +1,176 @@
+#include "calibration.hpp"
+#include "lego_model.hpp"
+#include "motors.hpp"
+#include "rc/servo.h"
+#include "rc/time.h"
+#include <array>
+#include <atomic>
+#include <fcntl.h>
+#include <iostream>
+#include <mutex>
+#include <termios.h>
+#include <thread>
+#include <unistd.h>
+
+#define MOTOR_CHANGE_AMOUNT 0.05
+
+std::mutex printing_mut;
+std::mutex data_mut;
+std::array<double, 3> motor_positions;
+
+std::atomic<bool> stop;
+
+void enableRawMode() {
+	termios term;
+	tcgetattr(STDIN_FILENO, &term);
+	term.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
+	tcsetattr(STDIN_FILENO, TCSANOW, &term);
+}
+void disableRawMode() {
+	termios term;
+	tcgetattr(STDIN_FILENO, &term);
+	term.c_lflag |= (ICANON | ECHO); // Enable canonical mode and echo
+	tcsetattr(STDIN_FILENO, TCSANOW, &term);
+}
+void setNonBlockingInput() {
+	int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+	fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+}
+
+void displayValues() {
+	std::cout << "\033[H";              // Set cursor to start position
+	std::cout << "\033[J" << std::endl; // Clear screen
+
+	// Write the xyz, angle and motor angle
+
+	// motor angles
+	std::cout << "Motor angles: " << motor_positions[0] << ", " << motor_positions[1] << ", " << motor_positions[2]
+			  << std::endl;
+
+	// joint angles
+	double joint_angles[4];
+	for (int i = 0; i < 3; i++) {
+		joint_angles[i] = motor_angle_to_joint_angle(i, motor_positions[i]);
+	}
+
+	std::cout << "Joint angles: " << joint_angles[0] << ", " << joint_angles[1] << ", " << joint_angles[2] << std::endl;
+
+	// x y z
+	double matrix[4][4];
+	double angle = 0.0;
+	fwd(&lego_model, joint_angles, matrix, &angle);
+
+	std::cout << "X Y Z: " << matrix[0][3] << ", " << matrix[1][3] << ", " << matrix[2][3] << std::endl;
+
+	// std::cout << "\033[" << 200 << ";" << 0 << "H"; // Move cursor to last line
+}
+
+double bound_value(double x, double a, double b) {
+	// Get the minimum and maximum between a and b
+	double min_val = std::min(a, b);
+	double max_val = std::max(a, b);
+
+	// Return x bounded between min_val and max_val
+	if (x < min_val) {
+		return min_val;
+	} else if (x > max_val) {
+		return max_val;
+	} else {
+		return x;
+	}
+}
+
+void user_input() {
+	char input;
+	while (true) {
+		input = getchar();
+
+		if (input == 'q') {
+			stop = true;
+		}
+
+		{
+			auto lock = std::lock_guard(data_mut);
+
+			// Handle X-axis control
+			if (input == 'w')
+				motor_positions[0] += MOTOR_CHANGE_AMOUNT; // Increase speed in X
+			if (input == 's')
+				motor_positions[0] -= MOTOR_CHANGE_AMOUNT; // Decrease speed in X
+
+			// Handle Y-axis control
+			if (input == 'e')
+				motor_positions[1] += MOTOR_CHANGE_AMOUNT; // Increase speed in Y
+			if (input == 'd')
+				motor_positions[1] -= MOTOR_CHANGE_AMOUNT; // Decrease speed in Y
+
+			// Handle Z-axis control
+			if (input == 'r')
+				motor_positions[2] += MOTOR_CHANGE_AMOUNT; // Increase speed in Z
+			if (input == 'f')
+				motor_positions[2] -= MOTOR_CHANGE_AMOUNT; // Decrease speed in Z
+
+			// limit motor values
+			for (int motor = 0; motor < 3; motor++) {
+				motor_positions[motor] =
+					bound_value(motor_positions[motor], motor_offset_values[motor][0], motor_offset_values[motor][1]);
+			}
+
+			auto display_lock = std::lock_guard(printing_mut);
+			displayValues();
+		}
+
+		usleep(100000); // Small delay for smooth input
+	}
+}
+
+// Thread function to control the robot and update the position
+void robotControlThread() {
+	while (!stop) {
+		std::array<double, 3> local_m_pos;
+		// data guard
+		{
+			std::lock_guard data_lock(data_mut);
+			local_m_pos = motor_positions;
+		}
+
+		for (int i = 0; i < 10; i++) {
+			for (int motor = 1; motor <= 3; motor++) {
+				if (rc_servo_send_pulse_normalized(motor, local_m_pos[motor - 1]) == -1) {
+					throw std::runtime_error(std::string("sending move command to servo: ") + std::to_string(motor));
+				}
+			}
+			rc_usleep(1000000 / 50);
+		}
+	}
+}
+
+int main(int argc, char *argv[]) {
+	std::string calibration_file = "./calibration.data";
+	if (argc > 1) {
+		calibration_file = argv[1];
+	}
+
+	if (!motor_setup()) {
+		exit(1);
+	}
+
+	// Load calibration data
+	motor_offset_values = read_calibration_file(calibration_file);
+
+	// Enable RAW mode for terminal input
+	enableRawMode();
+	// setNonBlockingInput();
+
+	displayValues();
+	std::thread control_thread(robotControlThread);
+
+	user_input();
+
+	// Disable RAW mode when done
+	disableRawMode();
+
+	motor_shutdown();
+	std::cout << "\nRobot control terminated." << std::endl;
+	return 0;
+}
