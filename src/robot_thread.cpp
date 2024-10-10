@@ -23,10 +23,18 @@ void print_command(FILE *out, motion_command &command) {
 
 // assumes there are commands in queue and queue is locked for this thread
 void get_commands() {
-	current_command = std::move(motion_queue.front());
-	motion_queue.pop();
-	if (!motion_queue.empty())
+	if (next_command.has_value()) {
+		current_command = std::move(next_command.value());
+		next_command = std::nullopt;
+	} else {
+		current_command = std::move(motion_queue.front());
+		motion_queue.pop();
+	}
+
+	if (!motion_queue.empty()) {
 		next_command = std::move(motion_queue.front());
+		motion_queue.pop();
+	}
 }
 
 bool execute_command(Robot &robot) {
@@ -35,22 +43,24 @@ bool execute_command(Robot &robot) {
 	return true;
 }
 
-void robot_thread_func(Robot* robot) {
+void robot_thread_func(Robot *robot) {
 	while (!stop_robot_thread) {
 		// check if queue is empty
 		{
 			std::unique_lock queue_lock(motion_queue_mutex);
 
-			if (motion_queue.empty()) {
-				queue_lock.unlock();
-				// wait for notification
-				motion_queue_trigger.wait(queue_lock);
-				get_commands();
-			} else {
-				get_commands();
+			// Wait until the queue is not empty or stop_robot_thread becomes true
+			motion_queue_trigger.wait(queue_lock, [&]() { return !motion_queue.empty() || stop_robot_thread; });
+
+			// If the thread is requested to stop, exit the loop
+			if (stop_robot_thread) {
+				return;
 			}
+
+			get_commands(); // Get commands after the queue is populated
 		}
 
+		// Execute the command and handle the result
 		if (!execute_command(*robot)) {
 			send_command_status(*current_command, CMD_FAILED);
 			return;
