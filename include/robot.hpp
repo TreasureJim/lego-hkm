@@ -62,7 +62,6 @@ class FakeVisRobot : public Robot {
 
 public:
     FakeVisRobot(int fake_delay = 50, int port = 4445, Eigen::Vector3d starting_pos = Eigen::Vector3d(945, 906, -30.5));
-    FakeVisRobot();
     ~FakeVisRobot();
 
     int go_to(Eigen::Vector3d pos) override;

@@ -14,6 +14,8 @@ extern "C" {
 #include "rc/time.h"
 }
 
+std::array<std::array<double, 2>, 3> motor_offset_values;
+
 std::array<double, 4> DEFAULT_JOINT_ANGLES = {lego_model.joint_lims[0][0] + 0.01, lego_model.joint_lims[1][0] + 0.01, lego_model.joint_lims[2][0] + 0.01, lego_model.joint_lims[3][0] + 0.01};
 std::array<double, 4> current_joint_angles = DEFAULT_JOINT_ANGLES;
 
@@ -53,7 +55,12 @@ void motor_shutdown() {
 }
 
 double joint_angle_to_libservo_value(double joint_angle, uint8_t motor) {
-	return (joint_angle - lego_model.joint_lims[motor][0]) / fabs(lego_model.joint_lims[motor][0]) * 3.0 - 1.5;
+	const double* lego_lim = lego_model.joint_lims[motor];
+	// transform angle between 0 and 1
+	const double norm_angle = (joint_angle - lego_lim[0]) / (lego_lim[1] - lego_lim[0]);
+
+	const std::array<double, 2> motor_lim = motor_offset_values[motor];
+	return norm_angle * (motor_lim[1] - motor_lim[0]) + motor_lim[0];
 }
 
 void motor_reset_angle() {

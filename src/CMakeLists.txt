@@ -15,6 +15,7 @@ set(SOURCE_FILES
     trajectory_planner.cpp
     client.cpp
     visualisation-integration/vis_robot.cpp
+    calibration/calibration_parsing.cpp
 )
 
 set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
@@ -65,5 +66,12 @@ target_compile_features(LegoHKM PRIVATE cxx_std_17)
 add_executable(MotorControl motorcontrol.cpp motors.cpp lego_model.cpp)
 target_link_libraries(MotorControl PUBLIC
     ${Boost_LIBRARIES}
+    robotics_cape
+)
+
+# Calibration Program
+
+add_executable(Calibration calibration/calibration_program.cpp)
+target_link_libraries(Calibration PUBLIC
     robotics_cape
 )
