@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <iostream>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -29,6 +30,8 @@ std::condition_variable motion_queue_trigger;
 Eigen::Vector3d last_target_pos;
 
 void push_to_queue(motion_command command) {
+	std::cout << "RECIEVED MOTION" << std::endl;
+
 	IMotion* motion = IMotion::motion_com_to_IMotion(last_target_pos, command, model);
 	last_target_pos = motion->get_target_pos();
 	motion_queue.push(std::unique_ptr<IMotion>(motion));
@@ -95,8 +98,9 @@ void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location, a
 
 	// decode
 	int status;
-	while ((status = chan_decode(decoder)) == 0)
-		;
+	/* while ((status = chan_decode(decoder)) == 0)
+		; */
+	while(true) chan_decode(decoder);
 
 	cleanup_juliet_comms();
 	printf("Received non-zero status from chan: %d.\n", status);
