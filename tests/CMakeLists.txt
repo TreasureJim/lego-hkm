@@ -107,3 +107,14 @@ target_include_directories(vis_control_test PUBLIC
 
     ${PROJECT_SOURCE_DIR}/include
 )
+
+# Calibration Parse Test
+
+add_executable(calibration_parse_test
+    calibration_parse_test.cpp
+    ${SOURCE_DIR}/calibration/calibration_parsing.cpp
+)
+add_test(
+  NAME calibration_parse_test
+  COMMAND $<TARGET_FILE:calibration_parse_test>
+  )

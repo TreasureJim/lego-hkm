@@ -15,6 +15,7 @@ set(SOURCE_FILES
     trajectory_planner.cpp
     client.cpp
     visualisation-integration/vis_robot.cpp
+    calibration/calibration_parsing.cpp
 )
 
 set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
