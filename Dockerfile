@@ -14,6 +14,7 @@ RUN apt-get install -y \
     build-essential \
     gcc-arm-linux-gnueabihf \
     g++-arm-linux-gnueabihf \
+    libasan5-armhf-cross \
     pkg-config \
     wget
 
