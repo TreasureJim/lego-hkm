@@ -20,6 +20,8 @@ double motor_angle_to_joint_angle(int motor, double motor_angle);
 /// Should **NOT** be used if motors are not in the default angles
 void motor_reset_angle();
 
+void motor_set_angle(double angles[4]);
+
 /// Will linearly move slowly between `start_angle` and `goal_angle` with
 /// `delay` ms delay between each intermediate position `step_size` is the
 /// maximum size between each intermediate position in radians

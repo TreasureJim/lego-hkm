@@ -39,7 +39,7 @@ int LegoRobot::go_to(Eigen::Vector3d pos) {
 		return 0;
 	}
 
-	motor_transition_angle(current_joint_angles.data(), goal_servo_angles);
+	motor_set_angle(goal_servo_angles);
 	return 1;
 }
 
