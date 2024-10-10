@@ -1,9 +1,12 @@
 #include "rc/adc.h"
 #include "rc/servo.h"
+#include "rc/time.h"
 #include <cctype>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 #include <termios.h>
 #include <thread>
 #include <unistd.h>
@@ -12,6 +15,15 @@
 using namespace std::chrono_literals;
 
 #define DEFAULT_CHANGE_VAL 0.1f
+
+void set_motor_angle(int motor, double angle) {
+	for (int i = 0; i < 30; i++) {
+		if (rc_servo_send_pulse_normalized(motor, angle) == -1) {
+			throw std::runtime_error(std::string("sending move command to servo: ") + std::to_string(motor));
+		}
+		rc_usleep(1000000 / 50);
+	}
+}
 
 bool motor_setup() {
 	// read adc to make sure battery is connected
@@ -36,11 +48,18 @@ bool motor_setup() {
 
 	std::cout << "Setting motors to middle positions." << std::endl;
 
-	rc_servo_send_pulse_normalized(1, 0.0);
-	rc_servo_send_pulse_normalized(2, 0.0);
-	rc_servo_send_pulse_normalized(3, 0.0);
-
-	std::this_thread::sleep_for(30ms);
+	for (int i = 0; i < 30; i++) {
+		if (rc_servo_send_pulse_normalized(1, 0.0) < 0) {
+			return false;
+		}
+		if (rc_servo_send_pulse_normalized(2, 0.0) < 0) {
+			return false;
+		}
+		if (rc_servo_send_pulse_normalized(3, 0.0) < 0) {
+			return false;
+		}
+		rc_usleep(1000000 / 50);
+	}
 
 	return true;
 }
@@ -120,6 +139,8 @@ int main(int argc, char *argv[]) {
 
 		input = getchar(); // Read single character
 
+		bool value_changed = false;
+
 		// If input is a digit or a dot, accumulate it in currentInput
 		if (isdigit(input) || input == '.') {
 			currentInput += input;
@@ -130,12 +151,16 @@ int main(int argc, char *argv[]) {
 		}
 		// '+' or '-' to adjust the value once entered
 		else if (input == '+' || input == '=') {
+			value_changed = true;
+
 			if (!currentInput.empty()) {
 				values[currentIndex] += std::stof(currentInput);
 				currentInput.clear(); // Clear current input after using it
 			} else
 				values[currentIndex] += DEFAULT_CHANGE_VAL; // Increment
 		} else if (input == '-') {
+			value_changed = true;
+
 			if (!currentInput.empty()) {
 				values[currentIndex] -= std::stof(currentInput);
 				currentInput.clear();
@@ -153,8 +178,8 @@ int main(int argc, char *argv[]) {
 		else if (values[currentIndex] > 1.5)
 			values[currentIndex] = 1.5;
 
-		rc_servo_send_pulse_normalized(currentIndex / 2 + 1, values[currentIndex]);
-		std::this_thread::sleep_for(30ms);
+		if (value_changed)
+			set_motor_angle(currentIndex / 2 + 1, values[currentIndex]);
 	}
 
 	// Restore terminal to normal mode before exiting
