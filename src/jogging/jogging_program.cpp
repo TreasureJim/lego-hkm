@@ -1,4 +1,5 @@
 #include "calibration.hpp"
+#include "eigen_kinematics.hpp"
 #include "lego_model.hpp"
 #include "motors.hpp"
 #include "rc/servo.h"
@@ -60,9 +61,20 @@ void displayValues() {
 	double angle = 0.0;
 	fwd(&lego_model, joint_angles, matrix, &angle);
 
-	std::cout << "X Y Z: " << matrix[0][3] << ", " << matrix[1][3] << ", " << matrix[2][3] << std::endl;
+	double cart_pos[3];
+	matrix_to_pos(matrix, cart_pos);
 
-	// std::cout << "\033[" << 200 << ";" << 0 << "H"; // Move cursor to last line
+	std::cout << "X Y Z: " << cart_pos[0] << ", " << cart_pos[1] << ", " << cart_pos[2] << std::endl;
+
+
+	std::cout << "\033[" << 200 << ";" << 0 << "H"; // Move cursor to last line
+
+	{
+		// show bad IK
+		auto j = inverse(Eigen::Vector3d(cart_pos[0], cart_pos[1], cart_pos[2]), &lego_model);
+		if (!j.has_value())
+			std::cout << "BAD" << std::endl;
+	}
 }
 
 double bound_value(double x, double a, double b) {

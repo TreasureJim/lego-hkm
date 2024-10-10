@@ -83,9 +83,11 @@ jogging/jogging_program.cpp
 motors.cpp
 calibration/calibration_parsing.cpp
 lego_model.cpp
+eigen_kinematics.cpp
 )
 target_link_libraries(Jogging PUBLIC
     robotics_cape
     IK-lib
     ${Boost_LIBRARIES}
+    Eigen3::Eigen
 )
