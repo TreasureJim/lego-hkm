@@ -4,24 +4,24 @@
 #include <cstdlib>
 #include <ctime>
 #include <ompl/geometric/PathGeometric.h>
+#include <unistd.h>
 
 #define RAD_TO_DEG 57.295779513
 
 #include "kinematics.h"
-#include "motors.hpp"
 
 #include "robot.hpp"
 
-Robot::Robot(agile_pkm_model &model) : model(model) {}
+Robot::Robot(agile_pkm_model* model) : model(model) {}
 
-agile_pkm_model& Robot::get_model() {
+agile_pkm_model* Robot::get_model() {
 	return this->model;
 }
 
-Eigen::Vector3d joint_angle_to_cart_loc(agile_pkm_model &model, const double angles[4]) {
+Eigen::Vector3d joint_angle_to_cart_loc(agile_pkm_model *model, const double angles[4]) {
 	double mat[4][4];
 	double orient;
-	fwd(&model, angles, mat, &orient);
+	fwd(model, angles, mat, &orient);
 
 	return Eigen::Vector3d(mat[0][3], mat[1][3], mat[2][3]);
 }
@@ -43,8 +43,11 @@ int Robot::execute_motion(IMotion &motion, float interval_size) {
 	} catch (const std::bad_cast &e) {
 	} */
 
-	for (float p = 0.0; p <= 1.0; p += 0.05) {
+	for (float p = 0.0; p <= 1.0; p += 0.02) {
+		std::cout << "Going to: " << motion.GetPoint(p) << std::endl;
 		this->go_to(motion.GetPoint(p));
+		usleep(50000);
+		// getchar();
 	}
 
 	return 1;

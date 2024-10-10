@@ -12,7 +12,7 @@ class Robot {
 protected:
     PathFinding pathfinding;
     Eigen::Vector3d cart_pos;
-    agile_pkm_model& model;
+    agile_pkm_model* model;
 
     Eigen::Vector3d joint_angle_to_cart_loc(const double angles[4]);
 
@@ -25,9 +25,9 @@ public:
 
     bool error = false;
 
-    Robot(agile_pkm_model& model);
+    Robot(agile_pkm_model* model);
 
-    agile_pkm_model& get_model();
+    agile_pkm_model* get_model();
 
     virtual Eigen::Vector3d get_current_cart_loc() = 0;
     // int move_joint(double joints[4]);
@@ -41,7 +41,7 @@ class LegoRobot : public Robot {
     int go_to(Eigen::Vector3d pos) override;
 
 public:
-    LegoRobot(agile_pkm_model& model);
+    LegoRobot(agile_pkm_model* model);
     ~LegoRobot();
     
     Eigen::Vector3d get_current_cart_loc() override;

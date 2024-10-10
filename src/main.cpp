@@ -27,8 +27,10 @@ void handle_sig(int sig) {
 	stop_robot_thread = true;
 	robot_thread->join();
 
-	if (robot)
+	if (robot) {
+		std::cout << "Shutting down robot." << std::endl;
 		delete robot;
+	}
 	exit(0);
 }
 
@@ -118,7 +120,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 
 	if (robot_type == "lego")
-		robot = new LegoRobot(lego_model);
+		robot = new LegoRobot(&lego_model);
 	else if (robot_type == "sim")
 		robot = new FakeVisRobot();
 
@@ -129,7 +131,7 @@ int main(int argc, char *argv[]) {
 
 	robot_thread = new std::thread(robot_thread_func, robot);
 
-	juliet_communication(jl_socket, robot->get_current_cart_loc(), &robot->get_model());
+	juliet_communication(jl_socket, robot->get_current_cart_loc(), robot->get_model());
 
 	return 0;
 }

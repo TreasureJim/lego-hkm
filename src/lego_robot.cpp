@@ -1,4 +1,4 @@
-#include "IMotion.hpp"
+#include "eigen_kinematics.hpp"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -13,7 +13,7 @@
 #include "robot.hpp"
 #include <lego_model.hpp>
 
-LegoRobot::LegoRobot(agile_pkm_model &model) : Robot(model) { error = !this->robot_setup(); }
+LegoRobot::LegoRobot(agile_pkm_model* model) : Robot(model) { error = !this->robot_setup(); }
 
 LegoRobot::~LegoRobot() { this->robot_shutdown(); }
 
@@ -33,13 +33,13 @@ void LegoRobot::robot_shutdown() {
 }
 
 int LegoRobot::go_to(Eigen::Vector3d pos) {
-	double goal_servo_angles[4];
-	if (cart_to_drive(&lego_model, pos.data(), 0.0, goal_servo_angles) < 0) {
+	auto goal_servo_angles = inverse(pos, this->model);
+	if (!goal_servo_angles.has_value()) {
 		fprintf(stderr, "ERROR: generating motor position for x: %f, y: %f, z: %f.\n", pos.x(), pos.y(), pos.z());
 		return 0;
 	}
 
-	motor_set_angle(goal_servo_angles);
+	motor_set_angle(goal_servo_angles->data());
 	return 1;
 }
 

@@ -17,7 +17,7 @@ extern "C" {
 using namespace std::chrono_literals;
 
 FakeVisRobot::FakeVisRobot(int fake_delay, int port, Eigen::Vector3d starting_pos)
-	: Robot(mark2_0), port(port), fake_delay(fake_delay), current_loc(starting_pos) {
+	: Robot(&mark2_0), port(port), fake_delay(fake_delay), current_loc(starting_pos) {
 	assert(port >= 0 && port < 65535);
 	if (this->robot_setup() < 0) {
 		this->error = true;
