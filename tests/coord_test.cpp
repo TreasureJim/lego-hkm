@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 		// x y z
 		double matrix[4][4];
 		double angle = 0.0;
-		fwd(&lego_model, motor_positions, matrix, &angle);
+		fwd(&lego_model, output_joint_vals.data(), matrix, &angle);
 
 		matrix_to_pos(matrix, output_coords.data());
 	}
