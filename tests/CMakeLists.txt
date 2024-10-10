@@ -5,6 +5,7 @@ set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 include_directories(
   ${PROJECT_SOURCE_DIR}/include
   ${CMAKE_BINARY_DIR}/gen_c
+  ${LOCAL_LIBS_DIR}/librobotcontrol/library/include
 )
 
 add_executable(custom_pathfinding_test 
@@ -118,3 +119,25 @@ add_test(
   NAME calibration_parse_test
   COMMAND $<TARGET_FILE:calibration_parse_test>
   )
+
+# Cart to Motor to Cart
+
+add_executable(coord_test
+    coord_test.cpp
+    ${SOURCE_DIR}/calibration/calibration_parsing.cpp
+    ${SOURCE_DIR}/eigen_kinematics.cpp
+    ${SOURCE_DIR}/lego_model.cpp
+    ${SOURCE_DIR}/test_helpers.cpp
+    ${SOURCE_DIR}/motors.cpp
+)
+target_link_libraries(coord_test PUBLIC
+IK-lib
+Eigen3::Eigen
+robotics_cape
+${Boost_LIBRARIES}
+)
+target_include_directories(coord_test PUBLIC
+  ${PROJECT_SOURCE_DIR}/include
+  ${CMAKE_BINARY_DIR}/gen_c
+  ${LOCAL_LIBS_DIR}/librobotcontrol/library/include
+)
