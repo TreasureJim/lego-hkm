@@ -12,11 +12,9 @@
 
 #include "robot.hpp"
 
-Robot::Robot(agile_pkm_model* model) : model(model) {}
+Robot::Robot(agile_pkm_model *model) : model(model) {}
 
-agile_pkm_model* Robot::get_model() {
-	return this->model;
-}
+agile_pkm_model *Robot::get_model() { return this->model; }
 
 Eigen::Vector3d joint_angle_to_cart_loc(agile_pkm_model *model, const double angles[4]) {
 	double mat[4][4];
@@ -36,6 +34,9 @@ int Robot::execute_motion(IMotion &motion, float interval_size) {
 		return -1;
 	}
 
+	std::cout << "Starting Motion" << std::endl;
+	// getchar();
+
 	/* try {
 	    MotionJoint &jointmotion = dynamic_cast<MotionJoint &>(motion);
 	    this->move_joint(jointmotion.get_angles().data());
@@ -44,9 +45,9 @@ int Robot::execute_motion(IMotion &motion, float interval_size) {
 	} */
 
 	for (float p = 0.0; p <= 1.0; p += 0.02) {
-		std::cout << "Going to: " << motion.GetPoint(p) << std::endl;
+		// std::cout << "Going to: " << motion.GetPoint(p) << std::endl;
 		this->go_to(motion.GetPoint(p));
-		usleep(50000);
+		usleep(5000);
 		// getchar();
 	}
 
