@@ -14,6 +14,8 @@ extern "C" {
 #include "rc/time.h"
 }
 
+std::array<std::array<double, 2>, 3> motor_offset_values;
+
 std::array<double, 4> DEFAULT_JOINT_ANGLES = {lego_model.joint_lims[0][0] + 0.01, lego_model.joint_lims[1][0] + 0.01, lego_model.joint_lims[2][0] + 0.01, lego_model.joint_lims[3][0] + 0.01};
 std::array<double, 4> current_joint_angles = DEFAULT_JOINT_ANGLES;
 

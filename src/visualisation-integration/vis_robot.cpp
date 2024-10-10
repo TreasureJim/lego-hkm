@@ -24,13 +24,6 @@ FakeVisRobot::FakeVisRobot(int fake_delay, int port, Eigen::Vector3d starting_po
 	}
 }
 
-FakeVisRobot::FakeVisRobot() : Robot(mark2_0) {
-	assert(port >= 0 && port < 65535);
-	if (this->robot_setup() < 0) {
-		this->error = true;
-	}
-}
-
 FakeVisRobot::~FakeVisRobot() { this->robot_shutdown(); }
 
 int FakeVisRobot::robot_setup() {
