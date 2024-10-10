@@ -15,14 +15,21 @@ function main()
 	var serverinfo = start_server(UInt16(9000))
 	var enc = serverinfo.enc::Encoder{TCPWriter}
 	try
-		encode(enc, mlin(0.210862, 0.0692802, 0.0278155))
-		wait(command_completed)
-		encode(enc, mlin(0.163194, 0.0995267, 0.112009))
-		wait(command_completed)
-		encode(enc, mlin(0.132179, 0.233252, 0.112009))
-		wait(command_completed)
-		encode(enc, mlin(0.13639, 0.222761, 0.0348802))
-		wait(command_completed)
+		while true
+			encode(enc, mlin(0.210862, 0.0692802, 0.0278155))
+			encode(enc, mlin(0.163194, 0.0995267, 0.112009))
+			encode(enc, mlin(0.132179, 0.233252, 0.112009))
+			encode(enc, mlin(0.13639, 0.222761, 0.0348802))
+			wait(command_completed)
+			wait(command_completed)
+			wait(command_completed)
+			wait(command_completed)
+
+			encode(enc, mlin(0.132179, 0.233252, 0.112009))
+			encode(enc, mlin(0.163194, 0.0995267, 0.112009))
+			wait(command_completed)
+			wait(command_completed)
+		end
     catch e
         var ae = e::ArgumentError
         println(ae.message)
