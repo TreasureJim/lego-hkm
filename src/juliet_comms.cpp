@@ -106,11 +106,10 @@ void send_command_status(const IMotion &command, command_status_e status) {
 	motionid motion_status = {.status = (int8_t)status};
 	memcpy(motion_status.id, command.uuid, 16);
 
-	printf("Sending status\n");
 	int result = encode_motionid(encoder, &motion_status);
 	if (result < 0) {
 		fprintf(stderr, "[ERROR] sending motiondid. Status: %d.\n", result);
 	}
 
-	printf("Sent status\n");
+	printf("MOTION COMPLETED\n");
 }
