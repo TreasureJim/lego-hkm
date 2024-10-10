@@ -72,20 +72,18 @@ double motor_angle_to_joint_angle(int motor, double motor_angle) {
 
 void motor_reset_angle() {
 	double motor_angles[4];
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 3; i++) {
 		motor_angles[i] = motor_offset_values[i][0] + (motor_offset_values[i][1] - motor_offset_values[i][0]) / 2.0;
 	}
 
 	current_joint_angles[0] = motor_angle_to_joint_angle(0, motor_angles[0]);
 	current_joint_angles[1] = motor_angle_to_joint_angle(1, motor_angles[1]);
 	current_joint_angles[2] = motor_angle_to_joint_angle(2, motor_angles[2]);
-	current_joint_angles[3] = motor_angle_to_joint_angle(3, motor_angles[3]);
 
 	for (int i = 0; i < 50; i++) {
 		rc_servo_send_pulse_normalized(1, motor_angles[0]);
 		rc_servo_send_pulse_normalized(2, motor_angles[1]);
 		rc_servo_send_pulse_normalized(3, motor_angles[2]);
-		rc_servo_send_pulse_normalized(4, motor_angles[3]);
 		rc_usleep(1e6 / 50);
 	}
 
@@ -105,7 +103,7 @@ void motor_transition_angle(double start_angle[4], double goal_angle[4], uint8_t
 	int num_steps = largest_angle / step_size;
 
 	for (int n = 0; n < largest_angle / step_size; n++) {
-		for (int j = 0; j < 4; j++) {
+		for (int j = 0; j < 3; j++) {
 			double new_angle = start_angle[j] + (goal_angle[j] - start_angle[j]) / num_steps * n;
 			auto translated_angle = joint_angle_to_libservo_value(new_angle, j);
 			if (rc_servo_send_pulse_normalized(j + 1, translated_angle))
@@ -114,7 +112,7 @@ void motor_transition_angle(double start_angle[4], double goal_angle[4], uint8_t
 		boost::this_thread::sleep(boost::posix_time::milliseconds(delay));
 	}
 
-	for (int j = 0; j < 4; j++) {
+	for (int j = 0; j < 3; j++) {
 		rc_servo_send_pulse_normalized(j + 1, joint_angle_to_libservo_value(goal_angle[j], j));
 	}
 	boost::this_thread::sleep(boost::posix_time::milliseconds(delay));

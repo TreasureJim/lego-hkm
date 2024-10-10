@@ -14,6 +14,7 @@ bool motor_setup();
 void motor_shutdown();
 
 double joint_angle_to_libservo_value(double joint_angle, uint8_t motor);
+double motor_angle_to_joint_angle(int motor, double motor_angle);
 
 /// This is used at the startup to allow the robot to go to default position and find its position of motors
 /// Should **NOT** be used if motors are not in the default angles
