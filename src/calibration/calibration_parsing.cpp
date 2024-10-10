@@ -10,6 +10,8 @@ std::array<std::array<double, 2>, 3> read_calibration_file(const std::string& fi
         throw std::runtime_error("Failed to open calibration file: " + file_name);
     }
 
+		std::cout << "Parsing calibration file: " << file_name << std::endl;
+
     std::array<std::array<double, 2>, 3> data;
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 2; ++j) {
