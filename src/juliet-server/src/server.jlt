@@ -2,7 +2,7 @@ module RobotServer
 
 using Sockets
 using Avon
-include("./motion_types.jlt")
+include("./gen/motion_types.jlt")
 using .Motion_types
 
 struct MotionError <: Exception
@@ -17,10 +17,16 @@ end
 
 var command_completed = Event(true)
 export command_completed
-
 function robot_decoder(dec::Decoder)
 	while true
-		var motion = decode(dec)::MotionId
+		var motion::MotionId
+
+		try
+			motion = decode(dec)::MotionId
+		catch e:
+			println("Error while decoding from robot.")
+			return
+		end
 
 		if motion.status == -1
 			throw(MotionError(motion.id))
@@ -41,7 +47,10 @@ end
 
 struct ServerInfo
 	server::TCPServer
+	robot::TCPSocket
 	enc::Encoder
+	dec::Decoder
+	dec_task::Task
 end
 
 function start_server(port::UInt16)::ServerInfo
@@ -49,7 +58,7 @@ function start_server(port::UInt16)::ServerInfo
 	print("Listening on ")
 	println(port)
 
-	var socket_robot = accept(server)
+	var socket_robot::TCPSocket = accept(server)
 	println("Connected to robot")
 
 	var enc = Encoder(TCPWriter(socket_robot))
@@ -64,14 +73,16 @@ function start_server(port::UInt16)::ServerInfo
 
     register(dec, MotionId)
 
-	schedule(Task("Robot decoder", () -> robot_decoder(dec)))
+	var dec_task = schedule(Task("Robot decoder", () -> robot_decoder(dec)))
 
-	ServerInfo(server, enc)
+	ServerInfo(server, socket_robot, enc, dec, dec_task)
 end
 export start_server
 
-function stop_server(server::TCPServer)
-    close(server)
+function stop_server(server::ServerInfo)
+	println("Closing server sockets")
+	close(server.robot)
+	close(server.server)
 end
 export stop_server
 
