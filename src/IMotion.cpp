@@ -42,21 +42,26 @@ IMotion *IMotion::motion_com_to_IMotion(Eigen::Vector3d origin_pos, motion_comma
 	switch (command.type) {
 	case MOVE_POS: {
 		motion = new MotionPath(origin_pos, command.motion.pos, model);
+		break;
 	}
 	case MOVE_LIN: {
 		motion = new MotionLinear(origin_pos, command.motion.linear, model);
+		break;
 	}
 	case MOVE_ARC: {
 		motion = new MotionArc(origin_pos, command.motion.arc, model);
+		break;
 	}
 	case MOVE_CIRC: {
 		motion = new MotionCircle(origin_pos, command.motion.circular, model);
+		break;
 	}
 	case MOVE_JOINT: {
 		motion = new MotionJoint(origin_pos, command.motion.joint, model);
+		break;
 	}
 	default: {
-		throw "[ERROR] Unrecognised motion command. ";
+		throw std::runtime_error(std::string("[ERROR] Unrecognised motion command: ") + std::to_string(command.type));
 	}
 	}
 
