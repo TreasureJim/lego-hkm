@@ -69,11 +69,11 @@ bool motor_setup() {
 }
 
 void motor_set_angle(double angles[4]) {
-	current_joint_angles[0] = motor_angle_to_joint_angle(0, angles[0]);
-	current_joint_angles[1] = motor_angle_to_joint_angle(1, angles[1]);
-	current_joint_angles[2] = motor_angle_to_joint_angle(2, angles[2]);
+	current_joint_angles[0] = joint_angle_to_libservo_value(angles[0], 0);
+	current_joint_angles[1] = joint_angle_to_libservo_value(angles[1], 1);
+	current_joint_angles[2] = joint_angle_to_libservo_value(angles[2], 2);
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 2; i++) {
 		rc_servo_send_pulse_normalized(1, current_joint_angles[0]);
 		rc_servo_send_pulse_normalized(2, current_joint_angles[1]);
 		rc_servo_send_pulse_normalized(3, current_joint_angles[2]);
