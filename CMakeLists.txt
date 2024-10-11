@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 option(BUILD_PROD "Build for BeagleBoard" OFF)
 option(USE_OMPL "Build with OMPL library" OFF)
 
-set(CMAKE_BUILD_TYPE Debug)
-add_compile_options(-fsanitize=address -fsanitize=undefined -fsanitize=alignment)
-add_link_options(-fsanitize=address -fsanitize=undefined -fsanitize=alignment)
+# set(CMAKE_BUILD_TYPE Debug)
+# add_compile_options(-fsanitize=address -fsanitize=undefined -fsanitize=alignment)
+# add_link_options(-fsanitize=address -fsanitize=undefined -fsanitize=alignment)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
