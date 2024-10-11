@@ -11,7 +11,7 @@
 std::atomic_bool stop_robot_thread = false;
 
 std::optional<std::unique_ptr<IMotion>> previous_command;
-std::unique_ptr<IMotion> current_command;
+std::optional<std::unique_ptr<IMotion>> current_command;
 std::optional<std::unique_ptr<IMotion>> next_command;
 
 void print_command(FILE *out, motion_command &command) {
@@ -38,7 +38,7 @@ void get_commands() {
 }
 
 bool execute_command(Robot &robot) {
-	robot.execute_motion(*current_command);
+	robot.execute_motion(*current_command.value());
 
 	return true;
 }
@@ -57,16 +57,20 @@ void robot_thread_func(Robot *robot) {
 				return;
 			}
 
-			get_commands(); // Get commands after the queue is populated
+			current_command = std::move(motion_queue.front());
+			motion_queue.pop();
+
+			// get_commands(); // Get commands after the queue is populated
 		}
 
 		// Execute the command and handle the result
 		if (!execute_command(*robot)) {
-			send_command_status(*current_command, CMD_FAILED);
+			send_command_status(*current_command.value(), CMD_FAILED);
 			return;
 		}
-		send_command_status(*current_command, CMD_COMPLETED);
+		send_command_status(*current_command.value(), CMD_COMPLETED);
 
+		previous_command = std::nullopt;
 		previous_command = std::move(current_command);
 	}
 }
