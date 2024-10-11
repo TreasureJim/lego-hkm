@@ -35,6 +35,9 @@ int Robot::execute_motion(IMotion &motion, float interval_size) {
 	}
 
 	std::cout << "Starting Motion" << std::endl;
+	std::cout << motion.GetPoint(0) << std::endl;
+	std::cout << motion.GetPoint(1) << std::endl;
+	std::cout << "END DESC" << std::endl;
 	// getchar();
 
 	/* try {
@@ -47,8 +50,6 @@ int Robot::execute_motion(IMotion &motion, float interval_size) {
 	for (float p = 0.0; p <= 1.0; p += 0.02) {
 		// std::cout << "Going to: " << motion.GetPoint(p) << std::endl;
 		this->go_to(motion.GetPoint(p));
-		usleep(5000);
-		// getchar();
 	}
 
 	return 1;
