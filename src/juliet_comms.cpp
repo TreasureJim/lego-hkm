@@ -115,5 +115,5 @@ void send_command_status(const IMotion &command, command_status_e status) {
 		fprintf(stderr, "[ERROR] sending motiondid. Status: %d.\n", result);
 	}
 
-	printf("MOTION COMPLETED\n");
+	std::cout << "MOTION COMPLETED, ID: " << std::to_string(status) << std::endl;
 }
