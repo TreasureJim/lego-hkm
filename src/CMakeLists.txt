@@ -91,3 +91,13 @@ target_link_libraries(Jogging PUBLIC
     ${Boost_LIBRARIES}
     Eigen3::Eigen
 )
+
+# JL Emulation
+
+add_executable(jl_emulator 
+visualisation-integration/jl_emulation.cpp
+)
+target_link_libraries(jl_emulator PUBLIC
+    chan-static
+    chan-comms
+)
