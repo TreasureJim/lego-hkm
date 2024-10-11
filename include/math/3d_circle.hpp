@@ -8,6 +8,8 @@ extern "C" {
 #include <array>
 #include <cmath>
 
+#include "eigen_kinematics.hpp"
+
 class Circle_3D {
   private:
 	agile_pkm_model* model;
@@ -146,8 +148,7 @@ class Circle_3D {
 	bool check_circle_valid_path() {
 		for (float p = 0.0; p <= 1.0; p += 0.05) {
 			auto vec = this->get_circle_coord(p);
-			double pos[3] = {vec.x(), vec.y(), vec.z()};
-			if (inv(this->model, pos, 0.0, NULL) < 0) {
+			if (!inverse(vec, this->model).has_value()) {
 				return false;
 			}
 		}
@@ -158,8 +159,7 @@ class Circle_3D {
 	bool check_arc_valid_path() {
 		for (float p = 0.0; p <= 1.0; p += 0.05) {
 			auto vec = this->get_arc_coord(p);
-			double pos[3] = {vec.x(), vec.y(), vec.z()};
-			if (inv(this->model, pos, 0.0, NULL) < 0) {
+			if (!inverse(vec, this->model).has_value()) {
 				return false;
 			}
 		}
