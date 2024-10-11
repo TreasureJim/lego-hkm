@@ -146,7 +146,7 @@ class Circle_3D {
 	}
 
 	bool check_circle_valid_path() {
-		for (float p = 0.0; p <= 1.0; p += 0.05) {
+		for (float p = 0.0; p <= 2 * M_PI; p += 0.05) {
 			auto vec = this->get_circle_coord(p);
 			if (!inverse(vec, this->model).has_value()) {
 				return false;
