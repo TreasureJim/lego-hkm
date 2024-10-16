@@ -7,6 +7,7 @@
 #include <csignal>
 #include <iostream>
 #include <mutex>
+#include <sys/socket.h>
 #include <thread>
 #include <unistd.h>
 
@@ -18,7 +19,21 @@ extern "C" {
 #include "motion_types.h"
 }
 
+// GLOBALS
 std::atomic<bool> stop = false;
+std::thread* decoding_thread;
+
+int server_sock = 0, client_sock = 0;
+
+struct chan_writer * j_writer;
+struct chan_reader * j_reader;
+
+struct chan_encoder *encoder;
+struct chan_decoder *decoder;
+
+std::mutex mut;
+std::condition_variable commandCompleted;
+
 
 void generateUUID(uint8_t *motion_id) {
 	boost::uuids::uuid uuid = boost::uuids::random_generator()();
@@ -26,26 +41,8 @@ void generateUUID(uint8_t *motion_id) {
 	std::memcpy(motion_id, uuid.data, 16);
 }
 
-struct chan_encoder *encoder;
-void mlin(double x, double y, double z) {
-	robtarget target = {x, y, z, 1.0, 1.0, 1.0, 1.0};
-
-	movelinear motion = {.target = target};
-	generateUUID(motion.motion_id);
-
-	int result = encode_movelinear(encoder, &motion);
-	if (result < 0) {
-		fprintf(stderr, "[ERROR] sending motiondid. Status: %d.\n", result);
-	}
-}
-
-std::mutex mut;
-std::condition_variable commandCompleted;
-
-int server_sock, client_sock;
-
 int startServer(uint16_t port) {
-	int server_sock = socket(AF_INET, SOCK_STREAM, 0);
+	server_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_sock == -1) {
 		std::cerr << "Failed to create socket." << std::endl;
 		return -1;
@@ -64,22 +61,22 @@ int startServer(uint16_t port) {
 	serverAddr.sin_addr.s_addr = INADDR_ANY;
 
 	if (bind(server_sock, (sockaddr *)&serverAddr, sizeof(serverAddr)) == -1) {
-		std::cerr << "Failed to bind to port." << std::endl;
+		std::cerr << "Failed to bind to port. " << strerror(errno) << std::endl;
 		close(server_sock);
 		return -1;
 	}
 
 	if (listen(server_sock, 1) == -1) {
-		std::cerr << "Failed to listen." << std::endl;
+		std::cerr << "Failed to listen." << strerror(errno) << std::endl;
 		close(server_sock);
 		return -1;
 	}
 
 	std::cout << "Listening on port " << port << std::endl;
 
-	int client_sock = accept(server_sock, nullptr, nullptr);
+	client_sock = accept(server_sock, nullptr, nullptr);
 	if (client_sock == -1) {
-		std::cerr << "Failed to accept connection." << std::endl;
+		std::cerr << "Failed to accept connection." << strerror(errno) << std::endl;
 		close(server_sock);
 		return -1;
 	}
@@ -89,13 +86,38 @@ int startServer(uint16_t port) {
 	return 0;
 }
 
-void stopServer(int serverSocket, int clientSocket) {
+void stopServer() {
 	std::cout << "Closing server sockets" << std::endl;
-	close(clientSocket);
-	close(serverSocket);
+	if (client_sock)
+		close(client_sock);
+	if (server_sock)
+		close(server_sock);
+	std::cout << "Closed sockets" << std::endl;
 }
 
-void motionid_cb(struct motionid *m, void *ctx) { commandCompleted.notify_one(); }
+void handle_sig(int sig) {
+	stop = true;
+	decoding_thread->join();
+	stopServer();
+	exit(0);
+}
+
+void mlin(double x, double y, double z) {
+	movelinear motion = {.target = {x, y, z, 1.0, 1.0, 1.0, 1.0}};
+	// generateUUID(motion.motion_id);
+
+	int result = encode_movelinear(encoder, &motion);
+	if (result < 0) {
+		std::cerr << "[ERROR] sending motiondid. Status: " << std::to_string(result) << std::endl;
+		handle_sig(1);
+	}
+}
+
+void motionid_cb(struct motionid *m, void *ctx) {
+	std::lock_guard<std::mutex> lock(mut);
+	commandCompleted.notify_one();
+	std::cout << "Finished command" << std::endl;
+}
 
 void waitForCommandCompletion() {
 	std::unique_lock lock(mut);
@@ -107,17 +129,12 @@ void unknown_type_error_func(uint8_t *sig, uint32_t sig_len, void *ctx) {
 }
 char decoder_ctx[] = "decoder context";
 
-struct chan_decoder *decoder;
 void decoding_thread_f() {
-	if (stop)
-		return;
-	chan_decode(decoder);
-}
-
-void handle_sig(int sig) {
-	stop = true;
-	stopServer(server_sock, client_sock);
-	exit(0);
+	while (!stop)
+		if (chan_decode(decoder) != 0) {
+			std::cerr << "Error decoding" << std::endl;
+			handle_sig(1);
+	}
 }
 
 int main() {
@@ -128,25 +145,21 @@ int main() {
 		return EXIT_FAILURE;
 	}
 
-	auto j_writer = fd_writer_new(client_sock);
-	auto j_reader = fd_reader_new(client_sock);
+	j_writer = fd_writer_new(client_sock);
+	j_reader = fd_reader_new(client_sock);
 	encoder = chan_encoder_new(j_writer);
 	decoder = chan_decoder_new(j_reader, unknown_type_error_func, decoder_ctx);
 	chan_enc_register_movelinear(encoder);
 	chan_dec_register_motionid(decoder, motionid_cb, decoder_ctx);
 
-	std::thread decoding_thread(decoding_thread_f);
+	decoding_thread = new std::thread(decoding_thread_f);
 
 	std::cout << "Starting commands now!" << std::endl;
 	try {
 		while (true) {
-			mlin(0.210862, 0.0692802, 0.0278155);
-			mlin(0.163194, 0.0995267, 0.112009);
-			mlin(0.132179, 0.233252, 0.112009);
-			mlin(0.13639, 0.222761, 0.0348802);
+			mlin(0.945, 0.839, 0.67);
+			mlin(0.52, -1.5, 0.2);
 
-			waitForCommandCompletion();
-			waitForCommandCompletion();
 			waitForCommandCompletion();
 			waitForCommandCompletion();
 		}
@@ -154,6 +167,6 @@ int main() {
 		std::cerr << "Error: " << e.what() << std::endl;
 	}
 
-	stopServer(result, result);
+	stopServer();
 	return 0;
 }
