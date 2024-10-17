@@ -17,6 +17,7 @@ enum motiontype_e {
 	MOVE_ARC,
 	MOVE_CIRC,
 	MOVE_JOINT,
+	MOVE_JOG
 };
 
 union motion_u {
@@ -25,6 +26,7 @@ union motion_u {
 	movearc arc;
 	movecircular circular;
 	movejoint joint;
+	movejog jog;
 };
 
 struct motion_command {
@@ -75,6 +77,8 @@ class MotionLinear : public IMotion {
 	MotionLinear(Eigen::Vector3d origin_pos, Eigen::Vector3d goal_pos, agile_pkm_model* model);
 	Eigen::Vector3d GetPoint(float t) override;
 	bool is_valid() override;
+
+	static MotionLinear jog_to_linear(Eigen::Vector3d origin_pos, const movejog& jog, agile_pkm_model* model);
 };
 
 class MotionPath : public IMotion {

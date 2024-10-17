@@ -57,6 +57,17 @@ struct MovePos
     target::RobTarget
 end
 
+struct MoveJog
+    motion_id::SVector{16, UInt8}
+    x::Float64
+    y::Float64
+    z::Float64
+    j1::Float64
+    j2::Float64
+    j3::Float64
+    j4::Float64
+end
+
 struct BlendValue
     percentage::Float64
     distance::Float64

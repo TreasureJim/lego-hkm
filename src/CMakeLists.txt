@@ -27,12 +27,14 @@ else()
     list(APPEND SOURCE_FILES custom_pathfinding.cpp)
 endif()
 
-if(BUILD_PROD)
+list(APPEND SOURCE_FILES main.cpp)
+
+#[[ if(BUILD_PROD)
     # list(APPEND SOURCE_FILES board_main.cpp)
     list(APPEND SOURCE_FILES main.cpp)
 else()
     list(APPEND SOURCE_FILES dev_main.cpp)
-endif()
+endif() ]]
 
 # LegoHKM
 add_executable(LegoHKM ${SOURCE_FILES})
