@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include <ompl/geometric/PathGeometric.h>
+#include <iostream>
 #include <unistd.h>
 
 #define RAD_TO_DEG 57.295779513
