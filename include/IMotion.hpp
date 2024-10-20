@@ -49,6 +49,7 @@ class IMotion {
 	static IMotion *motion_com_to_IMotion(Eigen::Vector3d origin_pos, motion_command command, agile_pkm_model* model);
 	Eigen::Vector3d get_target_pos();
 
+	virtual double GetLength() = 0;
 	virtual Eigen::Vector3d GetPoint(float t) = 0;
 	virtual bool is_valid() = 0;
 };
@@ -58,6 +59,7 @@ class MotionCircle : public IMotion {
 
   public:
 	MotionCircle(Eigen::Vector3d origin_pos, movecircular circle, agile_pkm_model* model);
+	double GetLength() override;
 	Eigen::Vector3d GetPoint(float t) override;
 	bool is_valid() override;
 };
@@ -67,6 +69,7 @@ class MotionArc : public IMotion {
 
   public:
 	MotionArc(Eigen::Vector3d origin_pos, movearc arc, agile_pkm_model* model);
+	double GetLength() override;
 	Eigen::Vector3d GetPoint(float t) override;
 	bool is_valid() override;
 };
@@ -75,6 +78,7 @@ class MotionLinear : public IMotion {
   public:
 	MotionLinear(Eigen::Vector3d origin_pos, movelinear linear_com, agile_pkm_model* model);
 	MotionLinear(Eigen::Vector3d origin_pos, Eigen::Vector3d goal_pos, agile_pkm_model* model);
+	double GetLength() override;
 	Eigen::Vector3d GetPoint(float t) override;
 	bool is_valid() override;
 
@@ -89,6 +93,7 @@ class MotionPath : public IMotion {
 
   public:
 	MotionPath(Eigen::Vector3d origin_pos, movepos path_com, agile_pkm_model* model);
+	double GetLength() override;
 	Eigen::Vector3d GetPoint(float t) override;
 	bool is_valid() override;
 };
@@ -98,6 +103,7 @@ class MotionJoint : public IMotion {
 
   public:
 	MotionJoint(Eigen::Vector3d origin_pos, movejoint joint_com, agile_pkm_model* model);
+	double GetLength() override;
 	Eigen::Vector3d GetPoint(float t) override;
 	std::array<double, 4> get_angles();
 	bool is_valid() override;

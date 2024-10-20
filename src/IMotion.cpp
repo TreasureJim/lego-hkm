@@ -84,6 +84,8 @@ MotionCircle::MotionCircle(Eigen::Vector3d origin_pos, movecircular circle, agil
 
 Eigen::Vector3d MotionCircle::GetPoint(float t) { return this->circle_3d.get_circle_coord(t * 2 * M_PI); }
 
+double MotionCircle::GetLength() { return this->circle_3d.get_circle_length(); }
+
 bool MotionCircle::is_valid() { return this->circle_3d.check_circle_valid_path(); }
 
 // MotionArc
@@ -93,6 +95,8 @@ MotionArc::MotionArc(Eigen::Vector3d origin_pos, movearc arc, agile_pkm_model *m
 	  circle_3d(model, origin_pos, robtarget_to_vector(arc.apos), robtarget_to_vector(arc.target)) {}
 
 Eigen::Vector3d MotionArc::GetPoint(float t) { return this->circle_3d.get_arc_coord(t); }
+
+double MotionArc::GetLength() { return this->circle_3d.get_arc_length(); }
 
 bool MotionArc::is_valid() { return this->circle_3d.check_arc_valid_path(); }
 
@@ -105,6 +109,8 @@ MotionLinear::MotionLinear(Eigen::Vector3d origin_pos, Eigen::Vector3d goal_pos,
 	: IMotion(std::array<uint8_t, 16>().data(), origin_pos, goal_pos, model) {}
 
 Eigen::Vector3d MotionLinear::GetPoint(float t) { return this->origin_pos + (this->target_pos - this->origin_pos) * t; }
+
+double MotionLinear::GetLength() { return (this->target_pos - this->origin_pos).norm(); }
 
 bool MotionLinear::is_valid() {
 	for (float p = 0.0; p <= 1.0; p += 0.05) {
@@ -176,6 +182,8 @@ Eigen::Vector3d MotionPath::GetPoint(float t) {
 	return this->path[path_i] + (this->path[path_i + 1] - this->path[path_i]) * t;
 }
 
+double MotionPath::GetLength() { return this->total_path_size; }
+
 bool MotionPath::is_valid() { return !this->path.empty(); }
 
 // MotionJoint
@@ -189,3 +197,5 @@ std::array<double, 4> MotionJoint::get_angles() { return this->angles; };
 bool MotionJoint::is_valid() { return inverse(this->target_pos, this->model).has_value(); }
 
 Eigen::Vector3d MotionJoint::GetPoint(float t) { return this->origin_pos + (this->target_pos - this->origin_pos) * t; }
+
+double MotionJoint::GetLength() { return (this->target_pos - this->origin_pos).norm(); }
