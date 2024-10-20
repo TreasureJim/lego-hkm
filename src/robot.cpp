@@ -12,7 +12,8 @@
 
 #include "robot.hpp"
 
-Robot::Robot(agile_pkm_model *model) : model(model) {}
+Robot::Robot(agile_pkm_model *model) : model(model) {
+}
 
 agile_pkm_model *Robot::get_model() { return this->model; }
 
