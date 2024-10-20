@@ -4,16 +4,23 @@
 #include "motors.hpp"
 #include "rc/servo.h"
 #include "rc/time.h"
+#include "robot.hpp"
 #include <array>
 #include <atomic>
 #include <fcntl.h>
 #include <iostream>
 #include <mutex>
+#include <queue>
 #include <termios.h>
 #include <thread>
 #include <unistd.h>
 
 #define MOTOR_CHANGE_AMOUNT 0.05
+
+Robot *robot;
+std::queue<MotionLinear> motion_queue;
+
+double speed = 0.01;
 
 std::mutex printing_mut;
 std::mutex data_mut;
@@ -65,7 +72,6 @@ void displayValues() {
 	matrix_to_pos(matrix, cart_pos);
 
 	std::cout << "X Y Z: " << cart_pos[0] << ", " << cart_pos[1] << ", " << cart_pos[2] << std::endl;
-
 
 	std::cout << "\033[" << 200 << ";" << 0 << "H"; // Move cursor to last line
 
@@ -138,37 +144,31 @@ void user_input() {
 
 // Thread function to control the robot and update the position
 void robotControlThread() {
-	while (!stop) {
-		std::array<double, 3> local_m_pos;
-		// data guard
-		{
-			std::lock_guard data_lock(data_mut);
-			local_m_pos = motor_positions;
-		}
 
-		for (int i = 0; i < 10; i++) {
-			for (int motor = 1; motor <= 3; motor++) {
-				if (rc_servo_send_pulse_normalized(motor, local_m_pos[motor - 1]) == -1) {
-					throw std::runtime_error(std::string("sending move command to servo: ") + std::to_string(motor));
-				}
-			}
-			rc_usleep(1000000 / 50);
-		}
-	}
+	// TODO: Make robot execute motions from here
+	assert(false);
 }
 
 int main(int argc, char *argv[]) {
-	std::string calibration_file = "./calibration.data";
-	if (argc > 1) {
-		calibration_file = argv[1];
+	if (argc < 2) {
+		fprintf(stderr, "Usage: %s <robot type> <calibration file>", argv[0]);
 	}
 
-	if (!motor_setup()) {
+	if (std::string("lego") == argv[1]) {
+		robot = new LegoRobot(&lego_model);
+
+		std::string calibration_file = "./calibration.data";
+		if (argc >= 3) {
+			calibration_file = argv[2];
+		}
+		// Load calibration data
+		motor_offset_values = read_calibration_file(calibration_file);
+	} else if (std::string("sim") == argv[1]) {
+		robot = new FakeVisRobot();
+	} else {
+		fprintf(stderr, "Invalid robot picked: %s", argv[1]);
 		exit(1);
 	}
-
-	// Load calibration data
-	motor_offset_values = read_calibration_file(calibration_file);
 
 	// Enable RAW mode for terminal input
 	enableRawMode();
