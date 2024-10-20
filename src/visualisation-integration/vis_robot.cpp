@@ -1,3 +1,4 @@
+#include <array>
 #include <sys/socket.h>
 #include <thread>
 #include <unistd.h>
@@ -127,3 +128,14 @@ int FakeVisRobot::go_to(Eigen::Vector3d pos) {
 }
 
 Eigen::Vector3d FakeVisRobot::get_current_cart_loc() { return this->current_loc; }
+std::array<double, 4> FakeVisRobot::get_current_joint_angles() { 
+	auto joints = forward(this->current_loc.data(), this->model); 
+	auto new_arr = std::array<double, 4>();
+
+	new_arr[0] = joints[0];
+	new_arr[1] = joints[1];
+	new_arr[2] = joints[2];
+	new_arr[3] = 0.0;
+
+	return new_arr;
+}

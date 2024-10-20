@@ -30,7 +30,7 @@ public:
     agile_pkm_model* get_model();
 
     virtual Eigen::Vector3d get_current_cart_loc() = 0;
-    // int move_joint(double joints[4]);
+    virtual std::array<double, 4> get_current_joint_angles() = 0;
 
     int execute_motion(IMotion& motion, float interval_size = 0.05);
 };
@@ -45,6 +45,7 @@ public:
     ~LegoRobot();
     
     Eigen::Vector3d get_current_cart_loc() override;
+    std::array<double, 4> get_current_joint_angles() override;
 };
 
 class FakeVisRobot : public Robot {
@@ -68,6 +69,7 @@ public:
     int go_to(Eigen::Vector3d pos) override;
 
     Eigen::Vector3d get_current_cart_loc() override;
+    std::array<double, 4> get_current_joint_angles() override;
 };
 
 extern std::atomic_bool stop_robot_thread;
