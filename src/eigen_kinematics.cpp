@@ -28,7 +28,7 @@ static void matrix_to_pos(double matrix[4][4], double pos[3]) {
 	pos[2] = matrix[2][3];
 }
 
-Eigen::Vector3d forward(const struct agile_pkm_model *rob, double joints[3]) {
+Eigen::Vector3d forward(double joints[3], const struct agile_pkm_model *rob) {
 	double joint_angles[4];
 	memcpy(joint_angles, joints, sizeof(double) * 3);
 

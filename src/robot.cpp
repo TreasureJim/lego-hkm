@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include <ompl/geometric/PathGeometric.h>
+#include <iostream>
 #include <unistd.h>
 
 #define RAD_TO_DEG 57.295779513
@@ -12,7 +12,8 @@
 
 #include "robot.hpp"
 
-Robot::Robot(agile_pkm_model *model) : model(model) {}
+Robot::Robot(agile_pkm_model *model) : model(model) {
+}
 
 agile_pkm_model *Robot::get_model() { return this->model; }
 
@@ -34,21 +35,7 @@ int Robot::execute_motion(IMotion &motion, float interval_size) {
 		return -1;
 	}
 
-	std::cout << "Starting Motion" << std::endl;
-	std::cout << motion.GetPoint(0) << std::endl;
-	std::cout << motion.GetPoint(1) << std::endl;
-	std::cout << "END DESC" << std::endl;
-	// getchar();
-
-	/* try {
-	    MotionJoint &jointmotion = dynamic_cast<MotionJoint &>(motion);
-	    this->move_joint(jointmotion.get_angles().data());
-	    return 1;
-	} catch (const std::bad_cast &e) {
-	} */
-
 	for (float p = 0.0; p <= 1.0; p += 0.02) {
-		// std::cout << "Going to: " << motion.GetPoint(p) << std::endl;
 		this->go_to(motion.GetPoint(p));
 	}
 
