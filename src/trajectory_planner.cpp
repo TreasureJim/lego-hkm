@@ -17,5 +17,6 @@ Eigen::Vector3d interpolate_points(Eigen::Vector3d p1, Eigen::Vector3d p2, Eigen
 
 Eigen::Vector3d blend_movements(double t, IMotion &current_movement, IMotion &next_movement, blendvalue &blend) {
 	// TODO
+	assert(false);
 	return Eigen::Vector3d(0,0,0);
 }

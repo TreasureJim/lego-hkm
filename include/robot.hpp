@@ -2,7 +2,6 @@
 
 #include "IMotion.hpp"
 #include "kinematics.h"
-#include "pathfinding.hpp"
 #include <Eigen/Dense>
 #include <atomic>
 
@@ -10,7 +9,6 @@ Eigen::Vector3d joint_angle_to_cart_loc(agile_pkm_model& model, const double ang
 
 class Robot {
 protected:
-    PathFinding pathfinding;
     Eigen::Vector3d cart_pos;
     agile_pkm_model* model;
 
