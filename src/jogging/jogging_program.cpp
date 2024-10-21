@@ -1,6 +1,5 @@
 #include "calibration.hpp"
 #include "lego_model.hpp"
-#include "motion_types.h"
 #include "motors.hpp"
 #include "robot.hpp"
 #include <array>
@@ -15,6 +14,10 @@
 #include <thread>
 #include <unistd.h>
 
+extern "C" {
+#include "motion_types.h"
+}
+
 agile_pkm_model *model;
 double speed = 0.01;
 
@@ -28,7 +31,7 @@ std::queue<MotionLinear> motion_queue;
 std::condition_variable motion_queue_trigger;
 Eigen::Vector3d last_target_pos;
 
-std::atomic<bool> last_motion_valid;
+std::atomic<bool> last_motion_valid = true;
 std::atomic<bool> stop;
 
 void handle_sig(int sig) {
@@ -54,8 +57,8 @@ void setNonBlockingInput() {
 }
 
 void displayValues(Robot *robot) {
-	// std::cout << "\033[H"; // Set cursor to start position
-	// std::cout << "\033[J" << std::endl; // Clear screen
+	std::cout << "\033[H"; // Set cursor to start position
+	std::cout << "\033[J" << std::endl; // Clear screen
 
 	// joint angles
 	auto joint_angles = robot->get_current_joint_angles();
@@ -65,14 +68,21 @@ void displayValues(Robot *robot) {
 	auto cart_pos = robot->get_current_cart_loc();
 	std::cout << "X Y Z: " << cart_pos.x() << ", " << cart_pos.y() << ", " << cart_pos.z() << std::endl;
 
-	// std::cout << "\033[" << 200 << ";" << 0 << "H"; // Move cursor to last line
+	std::cout << "\033[" << 200 << ";" << 0 << "H"; // Move cursor to last line
 	if (!last_motion_valid) 
 		std::cout << "Motion Invalid!" << std::endl;
 }
 
+char valid_keys[] = "q-_=+mwsedrf";
+
 void user_input() {
 	while (!stop) {
 		char input = getchar();
+
+		if (input == -1 || strchr(valid_keys, input) == NULL) {
+			usleep(50000); 
+			continue;
+		}
 
 		if (input == 'q') {
 			handle_sig(1);
@@ -90,6 +100,7 @@ void user_input() {
 
 		if (input == 'm') {
 			mode = (E_MODE)((mode + 1) % MODE_END);
+			std::cout << "Mode: " << std::to_string(mode) << std::endl;
 			continue;
 		}
 
@@ -150,8 +161,8 @@ void user_input() {
 		{
 			auto lock = std::lock_guard(data_mut);
 			motion_queue.push(motion);
-			motion_queue_trigger.notify_one();
 		}
+		motion_queue_trigger.notify_one();
 
 		usleep(100000); // Small delay for smooth input
 	}
@@ -219,6 +230,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	model = robot->get_model();
+	last_target_pos = robot->get_current_cart_loc();
 
 	// Enable RAW mode for terminal input
 	enableRawMode();
@@ -233,6 +245,8 @@ int main(int argc, char *argv[]) {
 
 	// Disable RAW mode when done
 	disableRawMode();
+
+	delete robot;
 
 	return 0;
 }

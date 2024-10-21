@@ -55,13 +55,13 @@ class FakeVisRobot : public Robot {
     // The amount of time to move 1mm in ms
     double fake_delay = 1;
 
-    Eigen::Vector3d current_loc = Eigen::Vector3d(945, 906, -30.5);
+    Eigen::Vector3d current_loc;
 
     int robot_setup() override;
     void robot_shutdown() override;
 
 public:
-    FakeVisRobot(double fake_delay = 1.0, int port = 4445, Eigen::Vector3d starting_pos = Eigen::Vector3d(945, 906, -30.5));
+    FakeVisRobot(double fake_delay = 1.0, int port = 4445, Eigen::Vector3d starting_pos = Eigen::Vector3d(0.945, 0.906, -0.0305));
     ~FakeVisRobot();
 
     int go_to(Eigen::Vector3d pos) override;

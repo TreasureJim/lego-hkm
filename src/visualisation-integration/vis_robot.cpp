@@ -110,9 +110,9 @@ void FakeVisRobot::robot_shutdown() {
 int FakeVisRobot::go_to(Eigen::Vector3d pos) {
 	// Send Command
 	hkmpos hkm_pos;
-	hkm_pos.j1 = pos.x() * 100;
-	hkm_pos.j2 = pos.y() * 100;
-	hkm_pos.j3 = pos.z() * 100;
+	hkm_pos.j1 = pos.x() * 1000;
+	hkm_pos.j2 = pos.y() * 1000;
+	hkm_pos.j3 = pos.z() * 1000;
 	hkm_pos.j4 = 0;
 
 	encode_hkmpos(this->encoder, &hkm_pos);
