@@ -86,6 +86,8 @@ add_executable(Jogging
 jogging/jogging_program.cpp
 calibration/calibration_parsing.cpp
 eigen_kinematics.cpp
+IMotion.cpp
+custom_pathfinding.cpp
 )
 target_link_libraries(Jogging PUBLIC
     robotics_cape

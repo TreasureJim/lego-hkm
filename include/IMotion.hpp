@@ -38,8 +38,8 @@ class IMotion {
   protected:
 	struct agile_pkm_model* model;
 
-	const Eigen::Vector3d origin_pos;
-	const Eigen::Vector3d target_pos;
+	Eigen::Vector3d origin_pos;
+	Eigen::Vector3d target_pos;
 
 	IMotion(uint8_t uuid[16], Eigen::Vector3d origin_pos, Eigen::Vector3d target_pos, agile_pkm_model* model);
 
