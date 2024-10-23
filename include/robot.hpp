@@ -2,7 +2,6 @@
 
 #include "IMotion.hpp"
 #include "kinematics.h"
-#include "pathfinding.hpp"
 #include <Eigen/Dense>
 #include <atomic>
 
@@ -10,7 +9,6 @@ Eigen::Vector3d joint_angle_to_cart_loc(agile_pkm_model& model, const double ang
 
 class Robot {
 protected:
-    PathFinding pathfinding;
     Eigen::Vector3d cart_pos;
     agile_pkm_model* model;
 
@@ -30,7 +28,7 @@ public:
     agile_pkm_model* get_model();
 
     virtual Eigen::Vector3d get_current_cart_loc() = 0;
-    // int move_joint(double joints[4]);
+    virtual std::array<double, 4> get_current_joint_angles() = 0;
 
     int execute_motion(IMotion& motion, float interval_size = 0.05);
 };
@@ -45,6 +43,7 @@ public:
     ~LegoRobot();
     
     Eigen::Vector3d get_current_cart_loc() override;
+    std::array<double, 4> get_current_joint_angles() override;
 };
 
 class FakeVisRobot : public Robot {
@@ -53,20 +52,22 @@ class FakeVisRobot : public Robot {
     int vis_conn;
     struct chan_encoder * encoder;
 
-    int fake_delay = 0.0;
+    // The amount of time to move 1mm in ms
+    double fake_delay = 1;
 
-    Eigen::Vector3d current_loc = Eigen::Vector3d(945, 906, -30.5);
+    Eigen::Vector3d current_loc;
 
     int robot_setup() override;
     void robot_shutdown() override;
 
 public:
-    FakeVisRobot(int fake_delay = 50, int port = 4445, Eigen::Vector3d starting_pos = Eigen::Vector3d(945, 906, -30.5));
+    FakeVisRobot(double fake_delay = 1.0, int port = 4445, Eigen::Vector3d starting_pos = Eigen::Vector3d(0.945, 0.906, -0.0305));
     ~FakeVisRobot();
 
     int go_to(Eigen::Vector3d pos) override;
 
     Eigen::Vector3d get_current_cart_loc() override;
+    std::array<double, 4> get_current_joint_angles() override;
 };
 
 extern std::atomic_bool stop_robot_thread;

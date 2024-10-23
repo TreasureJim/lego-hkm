@@ -45,3 +45,4 @@ int LegoRobot::go_to(Eigen::Vector3d pos) {
 
 Eigen::Vector3d LegoRobot::get_current_cart_loc() { return joint_angle_to_cart_loc(current_joint_angles.data()); }
 
+std::array<double, 4> LegoRobot::get_current_joint_angles() { return current_joint_angles; }

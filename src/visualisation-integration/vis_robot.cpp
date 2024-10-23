@@ -1,3 +1,4 @@
+#include <array>
 #include <sys/socket.h>
 #include <thread>
 #include <unistd.h>
@@ -16,7 +17,7 @@ extern "C" {
 
 using namespace std::chrono_literals;
 
-FakeVisRobot::FakeVisRobot(int fake_delay, int port, Eigen::Vector3d starting_pos)
+FakeVisRobot::FakeVisRobot(double fake_delay, int port, Eigen::Vector3d starting_pos)
 	: Robot(&mark2_0), port(port), fake_delay(fake_delay), current_loc(starting_pos) {
 	assert(port >= 0 && port < 65535);
 	if (this->robot_setup() < 0) {
@@ -109,18 +110,32 @@ void FakeVisRobot::robot_shutdown() {
 int FakeVisRobot::go_to(Eigen::Vector3d pos) {
 	// Send Command
 	hkmpos hkm_pos;
-	hkm_pos.j1 = pos.x() * 100;
-	hkm_pos.j2 = pos.y() * 100;
-	hkm_pos.j3 = pos.z() * 100;
+	hkm_pos.j1 = pos.x() * 1000;
+	hkm_pos.j2 = pos.y() * 1000;
+	hkm_pos.j3 = pos.z() * 1000;
 	hkm_pos.j4 = 0;
 
 	encode_hkmpos(this->encoder, &hkm_pos);
 
+	// in mm
+	double distance_moved = fabs((current_loc - pos).norm()) * 1000;
+
 	this->current_loc = pos;
 
 	// Delay
-	std::this_thread::sleep_for(std::chrono::milliseconds(this->fake_delay));
+	std::this_thread::sleep_for(std::chrono::milliseconds((int) (this->fake_delay * distance_moved)));
 	return 0;
 }
 
 Eigen::Vector3d FakeVisRobot::get_current_cart_loc() { return this->current_loc; }
+std::array<double, 4> FakeVisRobot::get_current_joint_angles() { 
+	auto joints = forward(this->current_loc.data(), this->model); 
+	auto new_arr = std::array<double, 4>();
+
+	new_arr[0] = joints[0];
+	new_arr[1] = joints[1];
+	new_arr[2] = joints[2];
+	new_arr[3] = 0.0;
+
+	return new_arr;
+}

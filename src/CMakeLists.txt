@@ -3,18 +3,28 @@ FILE(REMOVE ${CMAKE_BINARY_DIR}/juliet-server/src/gen)
 
 add_subdirectory(chan-gen-types)
 
+add_library(robot STATIC
+    robot.cpp
+    lego/lego_model.cpp
+    lego/motors.cpp
+    lego/lego_robot.cpp
+    visualisation-integration/vis_robot.cpp
+)
+target_link_libraries(robot PUBLIC
+    robotics_cape
+    ${Boost_LIBRARIES}
+    chan-static
+    chan-comms
+    IK-lib
+)
+
 set(SOURCE_FILES
     IMotion.cpp
-    lego_model.cpp
-    motors.cpp
-    robot.cpp
-    lego_robot.cpp
     eigen_kinematics.cpp
     juliet_comms.cpp
     robot_thread.cpp
     trajectory_planner.cpp
     client.cpp
-    visualisation-integration/vis_robot.cpp
     calibration/calibration_parsing.cpp
 )
 
@@ -27,12 +37,14 @@ else()
     list(APPEND SOURCE_FILES custom_pathfinding.cpp)
 endif()
 
-if(BUILD_PROD)
+list(APPEND SOURCE_FILES main.cpp)
+
+#[[ if(BUILD_PROD)
     # list(APPEND SOURCE_FILES board_main.cpp)
     list(APPEND SOURCE_FILES main.cpp)
 else()
     list(APPEND SOURCE_FILES dev_main.cpp)
-endif()
+endif() ]]
 
 # LegoHKM
 add_executable(LegoHKM ${SOURCE_FILES})
@@ -54,20 +66,12 @@ target_link_libraries(LegoHKM PUBLIC
     ${Boost_LIBRARIES}
     ${OMPL_LIBRARIES}
     IK-lib
-    robotics_cape
     chan-static
     chan-comms
+    robot
 )
 
 target_compile_features(LegoHKM PRIVATE cxx_std_17)
-
-# Motor Control
-
-add_executable(MotorControl motorcontrol.cpp motors.cpp lego_model.cpp)
-target_link_libraries(MotorControl PUBLIC
-    ${Boost_LIBRARIES}
-    robotics_cape
-)
 
 # Calibration Program
 
@@ -80,16 +84,17 @@ target_link_libraries(Calibration PUBLIC
 
 add_executable(Jogging 
 jogging/jogging_program.cpp
-motors.cpp
 calibration/calibration_parsing.cpp
-lego_model.cpp
 eigen_kinematics.cpp
+IMotion.cpp
+custom_pathfinding.cpp
 )
 target_link_libraries(Jogging PUBLIC
     robotics_cape
     IK-lib
     ${Boost_LIBRARIES}
     Eigen3::Eigen
+    robot
 )
 
 # JL Emulation

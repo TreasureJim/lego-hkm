@@ -139,10 +139,18 @@ class Circle_3D {
 		return this->origin_3d + this->radius * (cos(t) * this->plane_vec1 + sin(t) * this->plane_vec2);
 	}
 
+	double get_circle_length() {
+		return 2 * M_PI * this->radius;
+	}
+
 	/// float `p` between 0.0 and 1.0 - represents how far along the arc
 	/// Returns: gives the coordinate of the arc given `t`
 	Eigen::Vector3d get_arc_coord(float p) {
 		return this->get_circle_coord(this->arc_start_angle + (arc_end_angle - arc_start_angle) * p);
+	}
+
+	double get_arc_length() {
+		return this->get_circle_length() * fabs(this->arc_end_angle - this->arc_start_angle) / (2 * M_PI);
 	}
 
 	bool check_circle_valid_path() {

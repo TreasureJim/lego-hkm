@@ -12,7 +12,7 @@ add_executable(custom_pathfinding_test
     custom_pathfinding_test.cpp
     ${SOURCE_DIR}/eigen_kinematics.cpp
     ${SOURCE_DIR}/custom_pathfinding.cpp
-    ${SOURCE_DIR}/lego_model.cpp
+    ${SOURCE_DIR}/lego/lego_model.cpp
     ${SOURCE_DIR}/test_helpers.cpp
 )
 
@@ -28,7 +28,7 @@ add_library(custom_pathfinding_vis_test SHARED
     custom_pathfinding_vis_test.cpp
     ${SOURCE_DIR}/eigen_kinematics.cpp
     ${SOURCE_DIR}/custom_pathfinding.cpp
-    ${SOURCE_DIR}/lego_model.cpp
+    ${SOURCE_DIR}/lego/lego_model.cpp
     ${SOURCE_DIR}/test_helpers.cpp
 )
 
@@ -47,7 +47,7 @@ add_executable(juliet_comms_test
     ${SOURCE_DIR}/juliet_comms.cpp
     ${SOURCE_DIR}/client.cpp
     ${SOURCE_DIR}/IMotion.cpp
-    ${SOURCE_DIR}/lego_model.cpp
+    ${SOURCE_DIR}/lego/lego_model.cpp
     ${SOURCE_DIR}/eigen_kinematics.cpp
     ${SOURCE_DIR}/custom_pathfinding.cpp
     julia_communication_test.cpp
@@ -126,9 +126,9 @@ add_executable(coord_test
     coord_test.cpp
     ${SOURCE_DIR}/calibration/calibration_parsing.cpp
     ${SOURCE_DIR}/eigen_kinematics.cpp
-    ${SOURCE_DIR}/lego_model.cpp
+    ${SOURCE_DIR}/lego/lego_model.cpp
     ${SOURCE_DIR}/test_helpers.cpp
-    ${SOURCE_DIR}/motors.cpp
+    ${SOURCE_DIR}/lego/motors.cpp
 )
 target_link_libraries(coord_test PUBLIC
 IK-lib
