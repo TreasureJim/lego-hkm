@@ -29,6 +29,15 @@ std::queue<std::unique_ptr<IMotion>> motion_queue;
 std::condition_variable motion_queue_trigger;
 Eigen::Vector3d last_target_pos;
 
+Eigen::Vector3d last_completed_pos;
+
+struct chan_encoder *encoder = nullptr;
+struct chan_decoder *decoder = nullptr;
+char decoder_ctx[] = "decoder context";
+
+int socket_fd;
+
+
 void push_to_queue(motion_command command) {
 	std::cout << "RECIEVED MOTION" << std::endl;
 
@@ -55,15 +64,28 @@ GEN_MOTION_TYPE_CALLBCK(movearc, arc, MOVE_ARC);
 GEN_MOTION_TYPE_CALLBCK(movecircular, circular, MOVE_CIRC);
 GEN_MOTION_TYPE_CALLBCK(movejoint, joint, MOVE_JOINT);
 
+void robotrequeststatus_callbck_func(robotrequeststatus* m, void* ctx) {
+	free(m);
+
+	auto pos = last_completed_pos;
+	auto joints = inverse(pos, model).value_or(std::array<double, 4>());
+
+	robotstatus status {
+		.x = pos.x(),
+		.y = pos.y(),
+		.z = pos.z(),
+		.j1 = joints[0],
+		.j2 = joints[1],
+		.j3 = joints[2],
+		.j4 = joints[3],
+	};
+
+	encode_robotstatus(encoder, &status);
+}
+
 void unknown_type_error_func(uint8_t *sig, uint32_t sig_len, void *ctx) {
 	fprintf(stderr, "[ERROR] parsing type from juliet queue.\n");
 }
-
-struct chan_encoder *encoder = nullptr;
-struct chan_decoder *decoder = nullptr;
-char decoder_ctx[] = "decoder context";
-
-int socket_fd;
 
 void cleanup_juliet_comms() {
 	fd_writer_free(encoder->writer);
@@ -77,7 +99,7 @@ void cleanup_juliet_comms() {
 
 void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location, agile_pkm_model* c_model) {
 	model = c_model;
-	last_target_pos = initial_location;
+	last_completed_pos = last_target_pos = initial_location;
 
 	socket_fd = juliet_socket;
 
@@ -90,11 +112,12 @@ void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location, a
 	chan_enc_register_motionid(encoder);
 
 	// register decoder types
-	chan_dec_register_movepos(decoder, movepos_callbck_func, NULL);
-	chan_dec_register_movelinear(decoder, movelinear_callbck_func, NULL);
-	chan_dec_register_movearc(decoder, movearc_callbck_func, NULL);
-	chan_dec_register_movecircular(decoder, movecircular_callbck_func, NULL);
-	chan_dec_register_movejoint(decoder, movejoint_callbck_func, NULL);
+	chan_dec_register_movepos(decoder, movepos_callbck_func, decoder_ctx);
+	chan_dec_register_movelinear(decoder, movelinear_callbck_func, decoder_ctx);
+	chan_dec_register_movearc(decoder, movearc_callbck_func, decoder_ctx);
+	chan_dec_register_movecircular(decoder, movecircular_callbck_func, decoder_ctx);
+	chan_dec_register_movejoint(decoder, movejoint_callbck_func, decoder_ctx);
+	chan_dec_register_robotrequeststatus(decoder, robotrequeststatus_callbck_func, decoder_ctx);
 
 	// decode
 	int status;
@@ -116,4 +139,8 @@ void send_command_status(const IMotion &command, command_status_e status) {
 	}
 
 	std::cout << "MOTION COMPLETED, ID: " << std::to_string(status) << std::endl;
+
+	if (status == CMD_COMPLETED) {
+		last_completed_pos = command.get_target_pos();
+	}
 }

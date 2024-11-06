@@ -13,6 +13,19 @@ struct MotionId
     status::Int8
 end
 
+struct RobotRequestStatus
+end
+
+struct RobotStatus
+    x::Float64
+    y::Float64
+    z::Float64
+    j1::Float64
+    j2::Float64
+    j3::Float64
+    j4::Float64
+end
+
 struct RobTarget
     x::Float64
     y::Float64

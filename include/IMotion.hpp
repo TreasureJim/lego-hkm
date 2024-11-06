@@ -47,7 +47,7 @@ class IMotion {
 	uint8_t uuid[16];
 
 	static IMotion *motion_com_to_IMotion(Eigen::Vector3d origin_pos, motion_command command, agile_pkm_model* model);
-	Eigen::Vector3d get_target_pos();
+	Eigen::Vector3d get_target_pos() const;
 
 	virtual double GetLength() = 0;
 	virtual Eigen::Vector3d GetPoint(float t) = 0;
