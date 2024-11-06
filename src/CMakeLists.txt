@@ -96,3 +96,13 @@ target_link_libraries(Jogging PUBLIC
     Eigen3::Eigen
     robot
 )
+
+# JL Emulation
+
+add_executable(jl_emulator 
+visualisation-integration/jl_emulation.cpp
+)
+target_link_libraries(jl_emulator PUBLIC
+    chan-static
+    chan-comms
+)
