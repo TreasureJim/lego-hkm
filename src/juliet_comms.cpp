@@ -63,6 +63,7 @@ GEN_MOTION_TYPE_CALLBCK(movelinear, linear, MOVE_LIN);
 GEN_MOTION_TYPE_CALLBCK(movearc, arc, MOVE_ARC);
 GEN_MOTION_TYPE_CALLBCK(movecircular, circular, MOVE_CIRC);
 GEN_MOTION_TYPE_CALLBCK(movejoint, joint, MOVE_JOINT);
+GEN_MOTION_TYPE_CALLBCK(movejog, jog, MOVE_JOG);
 
 void robotrequeststatus_callbck_func(robotrequeststatus* m, void* ctx) {
 	free(m);
@@ -117,6 +118,8 @@ void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location, a
 	chan_dec_register_movearc(decoder, movearc_callbck_func, decoder_ctx);
 	chan_dec_register_movecircular(decoder, movecircular_callbck_func, decoder_ctx);
 	chan_dec_register_movejoint(decoder, movejoint_callbck_func, decoder_ctx);
+
+	chan_dec_register_movejog(decoder, movejog_callbck_func, decoder_ctx);
 	chan_dec_register_robotrequeststatus(decoder, robotrequeststatus_callbck_func, decoder_ctx);
 
 	// decode

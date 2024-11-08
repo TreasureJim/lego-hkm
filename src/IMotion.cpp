@@ -74,7 +74,7 @@ IMotion *IMotion::motion_com_to_IMotion(Eigen::Vector3d origin_pos, motion_comma
 	return motion;
 }
 
-Eigen::Vector3d IMotion::get_target_pos() { return this->target_pos; }
+Eigen::Vector3d IMotion::get_target_pos() const { return this->target_pos; }
 
 // MotionCircle
 
