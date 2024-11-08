@@ -65,9 +65,7 @@ GEN_MOTION_TYPE_CALLBCK(movecircular, circular, MOVE_CIRC);
 GEN_MOTION_TYPE_CALLBCK(movejoint, joint, MOVE_JOINT);
 GEN_MOTION_TYPE_CALLBCK(movejog, jog, MOVE_JOG);
 
-void robotrequeststatus_callbck_func(robotrequeststatus* m, void* ctx) {
-	free(m);
-
+void send_robotstatus() {
 	auto pos = last_completed_pos;
 	auto joints = inverse(pos, model).value_or(std::array<double, 4>());
 
@@ -82,6 +80,10 @@ void robotrequeststatus_callbck_func(robotrequeststatus* m, void* ctx) {
 	};
 
 	encode_robotstatus(encoder, &status);
+}
+
+void robotrequeststatus_callbck_func(robotrequeststatus* m, void* ctx) {
+	send_robotstatus();
 }
 
 void unknown_type_error_func(uint8_t *sig, uint32_t sig_len, void *ctx) {
@@ -146,4 +148,6 @@ void send_command_status(const IMotion &command, command_status_e status) {
 	if (status == CMD_COMPLETED) {
 		last_completed_pos = command.get_target_pos();
 	}
+
+	send_robotstatus();
 }
