@@ -50,6 +50,7 @@ endif() ]]
 add_executable(LegoHKM ${SOURCE_FILES})
 
 include_directories(
+    ${EIGEN3_INCLUDE_DIR}
     ${Boost_INCLUDE_DIRS}
     ${OMPL_INCLUDE_DIRS}
     ${LOCAL_LIBS_DIR}/ompl/src
@@ -99,10 +100,13 @@ target_link_libraries(Jogging PUBLIC
 
 # JL Emulation
 
+find_package(Threads REQUIRED)
+
 add_executable(jl_emulator 
 visualisation-integration/jl_emulation.cpp
 )
 target_link_libraries(jl_emulator PUBLIC
     chan-static
     chan-comms
+    Threads::Threads
 )
