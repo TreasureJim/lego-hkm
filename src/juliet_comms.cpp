@@ -79,7 +79,10 @@ void send_robotstatus() {
 		.j4 = joints[3],
 	};
 
-	encode_robotstatus(encoder, &status);
+	int result = encode_robotstatus(encoder, &status);
+	if (result < 0) {
+		fprintf(stderr, "[ERROR] sending robotstatus. Status: %d.\n", result);
+	}
 }
 
 void robotrequeststatus_callbck_func(robotrequeststatus* m, void* ctx) {
@@ -113,6 +116,7 @@ void juliet_communication(int juliet_socket, Eigen::Vector3d initial_location, a
 
 	// register encoder types
 	chan_enc_register_motionid(encoder);
+	chan_enc_register_robotstatus(encoder);
 
 	// register decoder types
 	chan_dec_register_movepos(decoder, movepos_callbck_func, decoder_ctx);
